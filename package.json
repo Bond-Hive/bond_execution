@@ -1,0 +1,25 @@
+{
+  "name": "bondHive-monitoring",
+  "version": "1.0.0",
+  "description": "bondHive monitoring",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "FF&JB",
+  "license": "MIT",
+  "dependencies": {
+    "bignumber": "^1.1.0",
+    "ccxt": "^4.2.43",
+    "express": "^4.18.2",
+    "graphql": "^16.6.0",
+    "luxon": "^3.3.0",
+    "morgan": "^1.10.0",
+    "puppeteer": "^20.9.0",
+    "socket.io": "^4.6.2",
+    "xlsx": "^0.18.5"
+  },
+  "engines": {
+    "node": "16.x"
+  }
+}

@@ -1,0 +1,56 @@
+name: Fund Frontend Action
+
+on:
+  push:
+    branches: 
+      - "frontend-serve"
+
+env:
+  DOCKER_REGISTRY_URL: registry.digitalocean.com/fundregistry
+  IMAGE_NAME: frontend-serve
+  TAG: ${{ github.run_number }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Generate env file
+      run: echo "${{ secrets.ENV3 }}" > .env
+
+    - name: Generate npmrc file
+      run: echo "${{ secrets.NPMRC }}" > .npmrc
+
+    - name: Build and push Docker image
+      run: |
+        echo "${{ secrets.DOCKER_PASSWORD }}" | docker login ${{ env.DOCKER_REGISTRY_URL }} -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+        docker build -t ${{ env.DOCKER_REGISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ env.TAG }} .
+        docker push ${{ env.DOCKER_REGISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
+
+  deploy:
+    runs-on: [self-hosted, FE1]
+    needs: build
+    steps:
+    - name: Stop and remove older containers
+      run: |
+        current_tag=${{ env.TAG }}
+        docker images --format "{{.Repository}}:{{.Tag}}" | grep ${{ env.DOCKER_REGISTRY_URL }}/${{ env.IMAGE_NAME }} | while read -r image; do
+          tag=$(echo $image | cut -d ':' -f 2)
+          if [ "$tag" -le "$current_tag" ]; then
+            containers=$(docker ps -q --filter ancestor=$image)
+            if [ "$containers" ]; then
+              docker stop $containers
+              docker rm $containers
+            fi
+          fi
+        done
+        
+    - name: Pull Docker Image
+      run: |
+        echo "${{ secrets.DOCKER_PASSWORD }}" | docker login ${{ env.DOCKER_REGISTRY_URL }} -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+        docker pull ${{ env.DOCKER_REGISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
+    
+    - name: Run Docker Container
+      run: docker run -d -p 3000:3000 ${{ env.DOCKER_REGISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}

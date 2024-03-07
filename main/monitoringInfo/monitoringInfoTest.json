@@ -1,0 +1,40 @@
+{ 
+  "6.4":{
+    "name": "syntheticLP-MATIC",
+    "type": "v6",
+    "subType": "token-token",
+    "lpType": "v6",
+    "lpChainId": 1,
+    "openingDate": "2024-02-29T13:15",
+    "token0decimals": "6",
+    "token0PriceDecimals": "2",
+    "token0QuantityDecimals": "2",
+    "token1decimals": "18",
+    "token1PriceDecimals": "2",
+    "token1QuantityDecimals": "3",
+    "lpTokendecimals": "18",
+    "denomination": "USDT",
+    "showStrat": false,
+    "tranches": {
+      "1": {
+        "type": "deploy",
+        "cex": {
+          "1": {
+            "cex": "binanceusdm",
+            "cexSubaccount": "Test",
+            "cexSubaccountBot": "Test2",
+            "cexSymbol": "MATIC/USDT",
+            "exchangeFees": 0.00045,
+            "timeStamp": "2024-02-29T13:15",
+            "initialCEXCollateral": "300",
+            "initialBOTCollateral": "150",
+            "orderNameStratControl": true,
+            "stratOrderPrefix": "V2_120",
+            "tillDate": "2024-02-29T13:15",
+            "calculationType": "new"
+          }
+        }
+      }
+    }
+ }
+}
