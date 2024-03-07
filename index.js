@@ -36,7 +36,7 @@ const scheduleMasterResearchAPI = async () => {
 }
 
 const uniswapV3Fee_webScrape = async () => {
-  const dbName = 'CIV-Fund';
+  const dbName = 'bond-hive';
   const collectionName = 'monitoring';
   
   let dataCollections = await dbMongoose.getCollection(dbName, collectionName);
@@ -90,7 +90,7 @@ const schedulePoolResearchAPI = async () => {
 
 const uploadPerformanceToMongoDB = async function (result) {
   let mongoDBModel = "v3Fees";
-  let dbName = "CIV-Fund";
+  let dbName = "bond-hive";
   let collectionName = "monitoring_fees";
   const lastStoredData = await dbMongoose.findOne(dbName, collectionName, "fees","v3");
   if (lastStoredData) {

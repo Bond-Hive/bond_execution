@@ -35,7 +35,7 @@ const uploadPerformanceToMongoDB = async function (result) {
     result[strategy].timestamp = timestamp;
     result[strategy].unixTimestamp = unixTimestamp;
     try {
-      await dbMongoose.insertOne('CIV-Fund', mongoDBName, mongoDBModel, { 'strategy': result[strategy], 'timestamp': timestamp, 'unixTimestamp': unixTimestamp });  
+      await dbMongoose.insertOne('bond-hive', mongoDBName, mongoDBModel, { 'strategy': result[strategy], 'timestamp': timestamp, 'unixTimestamp': unixTimestamp });  
     } catch (error) {
       console.error('Error uploading' + result[strategy].strategyName + 'to MongoDB');
       throw error;
@@ -60,11 +60,9 @@ const updateChartData = async (monitoringOutput) => {
 
 const getMonitoringInfo = async (req, res) => {
   try {
-    const dbName = 'CIV-Fund'; 
+    const dbName = 'bond-hive'; 
     const collectionName = 'monitoring'; 
-    
     let dataCollections = await dbMongoose.getCollection(dbName, collectionName);
-    
     if(dataCollections.length === 0) {
       throw new Error('No documents found in the collection');
     }
@@ -98,7 +96,7 @@ const getMonitoringInfo = async (req, res) => {
 
 const fetchMonitoringInfo = async () => {
   try {
-    const dbName = 'CIV-Fund'; 
+    const dbName = 'bond-hive'; 
     const collectionName = 'monitoring'; 
     
     let dataCollections = await dbMongoose.getCollection(dbName, collectionName);
@@ -134,7 +132,7 @@ const fetchMonitoringInfo = async () => {
 
 const getMonitoringFromMongo = async (req, res) => {
   try {
-    const dbName = 'CIV-Fund'; 
+    const dbName = 'bond-hive'; 
     const collectionName = 'monitoring'; 
     
     let dataCollections = await dbMongoose.getCollection(dbName, collectionName);
@@ -176,7 +174,7 @@ const getMonitoringFromMongo = async (req, res) => {
 
 const getMonitoringFromMongoV4 = async (req, res) => {
   try {
-    const dbName = 'CIV-Fund'; 
+    const dbName = 'bond-hive'; 
     const collectionName = 'monitoring'; 
     
     let dataCollections = await dbMongoose.getCollection(dbName, collectionName);
@@ -217,7 +215,7 @@ const getMonitoringFromMongoV4 = async (req, res) => {
 
 const getMonitoringInfov4 = async (req, res) => {
   try {
-    const dbName = 'CIV-Fund'; 
+    const dbName = 'bond-hive'; 
     const collectionName = 'monitoring'; 
     
     let dataCollections = await dbMongoose.getCollection(dbName, collectionName);
@@ -267,7 +265,7 @@ const getMonitoringInfoTest = async (req, res) => {
 
 const getInvestorsMonitoringInfo = async (req, res) => {
   try {
-    const dbName = 'CIV-Fund'; 
+    const dbName = 'bond-hive'; 
     const collectionName = 'monitoring'; 
     
     let dataCollections = await dbMongoose.getCollection(dbName, collectionName);
@@ -300,7 +298,7 @@ const getInvestorsMonitoringInfo = async (req, res) => {
 
 const getMarginRatios = async (req, res) => {
   try {
-    const dbName = 'CIV-Fund'; 
+    const dbName = 'bond-hive'; 
     const collectionName = 'monitoring'; 
     
     let dataCollections = await dbMongoose.getCollection(dbName, collectionName);
@@ -355,7 +353,7 @@ const poolResearchFunction = async (req, res) => {
 
 const masterFundingFee = async (req, res) => {
   try {
-    const dbName = 'CIV-Fund'; 
+    const dbName = 'bond-hive'; 
     const collectionName = 'monitoring'; 
     
     let dataCollections = await dbMongoose.getCollection(dbName, collectionName);
@@ -438,7 +436,7 @@ const getGridData = async (req, res) => {
 
 const processAllGrids = async (req, res) => {
   try {
-    const dbName = 'CIV-Fund'; 
+    const dbName = 'bond-hive'; 
     const collectionName = 'monitoring'; 
     
     let dataCollections = await dbMongoose.getCollection(dbName, collectionName);
@@ -470,7 +468,7 @@ const processAllGrids = async (req, res) => {
 
 const cleanReportFromMongoDB = async (req, res) => {
   try {
-    const dbName = 'CIV-Fund'; 
+    const dbName = 'bond-hive'; 
     const collectionName = 'monitoring'; 
     
     let dataCollections = await dbMongoose.getCollection(dbName, collectionName);
@@ -502,7 +500,7 @@ const cleanReportFromMongoDB = async (req, res) => {
 
 const processAllReports = async (req, res) => {
   try {
-    const dbName = 'CIV-Fund'; 
+    const dbName = 'bond-hive'; 
     const collectionName = 'monitoring'; 
     
     let dataCollections = await dbMongoose.getCollection(dbName, collectionName);

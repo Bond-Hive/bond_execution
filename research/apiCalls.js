@@ -428,7 +428,7 @@ function getOrderDetails(trade, clientOrderId, tradeProps, missedValue, strategy
 }
 
 const getFundingFeesFromMonitoringFile = async function () {
-  const dbNamemonitoringInfo = 'CIV-Fund'; 
+  const dbNamemonitoringInfo = 'bond-hive'; 
   const collectionName = 'monitoring'; 
   
   let dataCollections = await dbMongoose.getCollection(dbNamemonitoringInfo, collectionName);
@@ -745,7 +745,7 @@ const getPerformanceReportFromMongoDB = async function () {
   for (let strategy in monitoringInfo){
     let arrayOfPerformanceSnapshot = [];
     let mongoDBName = monitoringInfo[strategy].name+"-monitoring"
-    let result = (await civfund.dbMongoose.getCollection('CIV-Fund',mongoDBName));
+    let result = (await civfund.dbMongoose.getCollection('bond-hive',mongoDBName));
     for (let i = 0;i<result.length;i++){
       arrayOfPerformanceSnapshot.push(result[i]._doc.strategy)
     }
@@ -775,7 +775,7 @@ const masterResearchFunction = async function () {
 const cleanReportFromMongoDB = async function (monitoringInfo) {
   let data = processFile(monitoringInfo);
   let mongoResearchDB = 'CIV_Research';
-  let mongoMasterDB = 'CIV-Fund';
+  let mongoMasterDB = 'bond-hive';
   let mongoMasterModel = 'CIV_MasterModel';
 
   // Create a Set from strategy names to ensure uniqueness
@@ -932,7 +932,7 @@ const LPHourDataSchema = new mongoose.Schema({
 const getLatestPerformanceReportFromMongoDB = async function (inputVariables) {
   try {
     let mongoDBName = `${inputVariables._mongoDBMonitoring}-monitoring`;
-    let result = await civfund.dbMongoose.getCollection('CIV-Fund', mongoDBName);
+    let result = await civfund.dbMongoose.getCollection('bond-hive', mongoDBName);
 
     if (!result || result.length === 0) {
       return "error";
@@ -952,7 +952,7 @@ const getLatestPerformanceReportFromMongoDB = async function (inputVariables) {
 
 const processAllReports = async (monitoringInfo) => {
   const data = processFile(monitoringInfo);
-  let mongoDBName = `CIV-Fund`;
+  let mongoDBName = `bond-hive`;
 
   let uniqueKeys = new Set(); // Store unique keys across all trades
 

@@ -5,7 +5,7 @@ const getDataFrontend = async (req, res) => {
     const strategyName = addSpaceAfterSubstring(input);    
     const collectionName = strategyName + "-monitoring";
     try {
-        let data = await civfund.dbMongoose.findLastDocument('CIV-Fund', collectionName, 'performanceData');
+        let data = await civfund.dbMongoose.findLastDocument('bond-hive', collectionName, 'performanceData');
         res.send({
             investedPositionReturns: data.strategy['NAVWNoise'],
             ROI: data.strategy['totalNAVChangeWoNoise'],
