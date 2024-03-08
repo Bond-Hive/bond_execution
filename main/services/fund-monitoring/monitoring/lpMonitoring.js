@@ -508,6 +508,8 @@ async function getFromBinance(strategy, token) {
 
         if (cexObj.cexSymbol == "BTC/USDT:USDT-240329"){
           markPrice = webSocketPriceMonitorUniversal.BTC240329.getPrice();
+        } else if (cexObj.cexSymbol == "BTC/USDT"){
+          markPrice = webSocketPriceMonitorUniversal.btcusdt.getPrice();
         } else {
           const {
             info: CexInfo,
