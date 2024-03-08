@@ -89,7 +89,7 @@ const schedulePoolResearchAPI = async () => {
 }
 
 const uploadPerformanceToMongoDB = async function (result) {
-  let mongoDBModel = "v3Fees";
+  let mongoDBModel = "v3Fees"; 
   let dbName = "bond-hive";
   let collectionName = "monitoring_fees";
   const lastStoredData = await dbMongoose.findOne(dbName, collectionName, "fees","v3");

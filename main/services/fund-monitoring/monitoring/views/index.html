@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Log Viewer</title>
+    <style>
+      #log-output {
+        width: 100%;
+        font-family: monospace;
+        background-color: #f2f2f2;
+        border: 1px solid #ccc;
+        font-size: 14px;
+        color: #333;
+        padding: 10px;
+      }
+      .log-item {
+        margin-bottom: 5px;
+        padding: 5px;
+        border-radius: 5px;
+      }
+      .log-item.log-even {
+        background-color: #ddd;
+      }
+      .log-item.log-odd {
+        background-color: #eee;
+      }
+      .log-item span.timestamp{
+        font-weight:bold;
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="log-output"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+      var socket = io();
+      var logOutput = document.getElementById('log-output');
+      var currentColor = "even";
+
+      socket.on('logs', function(data) {
+        var logs = data;
+        for(var i = 0; i < logs.length; i++) {
+          var log = logs[i];
+          if (i === 0) {
+            var logItem = '<div class="log-item log-' + currentColor + '">'+'<span class="timestamp">'+ log.split(" ")[0] + '</span> ' + log.split(" ").slice(1).join(" ") + '</div>';
+            logOutput.innerHTML += logItem;
+          } else {
+            logOutput.innerHTML += '<div class="log-item log-' + currentColor + '">'+ log + '</div>';
+          }
+        }
+        logOutput.scrollTop = 0;
+        currentColor = currentColor === "even" ? "odd" : "even";
+      });
+
+      socket.on('log', function(data) {
+        for(var i = 0; i < data.length; i++) {
+          var log = data[i];
+          if (i === 0) {
+            var logItem = '<div class="log-item log-' + currentColor + '">'+'<span class="timestamp">'+ log.split(" ")[0] + '</span> ' + log.split(" ").slice(1).join(" ") + '</div>';
+            logOutput.innerHTML += logItem;
+          } else {
+            logOutput.innerHTML += '<div class="log-item log-' + currentColor + '">'+ log + '</div>';
+          }
+        }
+        logOutput.scrollTop = 0;
+        currentColor = currentColor === "even" ? "odd" : "even";
+      });
+    </script>
+  </body>
+</html>

@@ -1253,7 +1253,10 @@ const getListOfSymbolsFromExchange = async function (exchange,subaccount) {
   const cex = civfund.initializeCcxt(exchange,subaccount);
   await cex.loadMarkets();
   let allPairs = cex.symbols;
-
+  // for (let symbol in allPairs){
+  //   console.log(allPairs[symbol])
+  // }
+  // return 
   // Filter out the pairs which include 'BUSD'
   allPairs = allPairs.filter(pair => !pair.includes('BUSD'));
 
@@ -1289,7 +1292,7 @@ const getListOfSymbolsFromExchange = async function (exchange,subaccount) {
   // Return both the original symbols and the mapping
   return { originalSymbols: allPairs, editedSymbols: editedSymbols, symbolMapping: symbolMapping };
 }
-
+// getListOfSymbolsFromExchange('binanceusdm','Test');
 // getFundingFeesFromMonitoringFile();
 
 const getListPoolsDataFromDefilama = async function () {

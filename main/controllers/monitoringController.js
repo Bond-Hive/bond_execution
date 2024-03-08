@@ -1,4 +1,4 @@
-const civFundMonitoring = require('@civfund/fund-monitoring');
+const civFundMonitoring = require('../services/fund-monitoring');
 const { dbMongoose } = require('@civfund/fund-libraries');
 const monitoringInfoTest = require('../monitoringInfo/monitoringInfoTest.json');
 const researchAPICalls = require('../../research/apiCalls');

@@ -1,7 +1,7 @@
 {
-  "name": "bondHive-monitoring",
+  "name": "bondHiveMonitoring",
   "version": "1.0.0",
-  "description": "bondHive monitoring",
+  "description": "bondHive_monitoring",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
