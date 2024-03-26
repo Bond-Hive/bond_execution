@@ -19,7 +19,9 @@
     "luxon": "^3.3.0",
     "morgan": "^1.10.0",
     "puppeteer": "^20.9.0",
+    "reconnecting-websocket": "^4.4.0",
     "socket.io": "^4.6.2",
+    "websocket": "^1.0.34",
     "xlsx": "^0.18.5"
   },
   "engines": {
