@@ -21,5 +21,7 @@ router.get('/poolResearchFunction', monitoringController.poolResearchFunction);
 router.get('/masterFundingFee', monitoringController.masterFundingFee);
 router.get('/getMonitoringFromMongo', monitoringController.getMonitoringFromMongo);
 router.get('/getMonitoringFromMongoV4', monitoringController.getMonitoringFromMongoV4);
+router.get('/stopYieldCalc', monitoringController.stopYieldCalc);
+router.get('/restartYieldCalc', monitoringController.restartYieldCalc);
 
 module.exports = router;

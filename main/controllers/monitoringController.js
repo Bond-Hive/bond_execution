@@ -3,6 +3,10 @@ const { dbMongoose } = require('@civfund/fund-libraries');
 const monitoringInfoTest = require('../monitoringInfo/monitoringInfoTest.json');
 const researchAPICalls = require('../../research/apiCalls');
 const priceStreams = require('../streams/priceStreams');
+const yieldDisplay = require('../../strategy/carryTradeV1/yieldDisplay');
+const depositMonitor = require('../../strategy/carryTradeV1/depositMonitor');
+const deltaHedge = require('../../strategy/carryTradeV1/deltaHedge');
+const mainFunction =  require('../../strategy/carryTradeV1/mainFunctionV1');
 
 const getData = async (strategyName) => {
   const collectionName = strategyName + "-monitoring";
@@ -572,6 +576,31 @@ const getFundingFees = async (req, res) => {
   }
 };
 
+const stopYieldCalc = async (req, res) => {
+  try {
+    res.send(
+      yieldDisplay.stopWebSockets()
+    );
+  } catch (e) {
+    console.error(e);
+    res.status(500);
+    res.send({result: 'FAILURE', exception: e.message, error: e.stack});
+  }
+};
+
+const restartYieldCalc = async (req, res) => {
+  try {
+    res.send(
+      yieldDisplay.restartYieldCalc()
+    );
+  } catch (e) {
+    console.error(e);
+    res.status(500);
+    res.send({result: 'FAILURE', exception: e.message, error: e.stack});
+  }
+};
+
+
 module.exports = {
   getMonitoringInfo,
   getMarginRatios,
@@ -593,4 +622,6 @@ module.exports = {
   getMonitoringFromMongo,
   getMonitoringFromMongoV4,
   fetchMonitoringInfo,
+  stopYieldCalc,
+  restartYieldCalc
 };

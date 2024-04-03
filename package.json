@@ -11,6 +11,7 @@
   "dependencies": {
     "@civfund/fund-libraries": "^1.2.72",
     "@civfund/fund-monitoring": "^1.4.29",
+    "@solana/web3.js": "^1.91.2",
     "bignumber": "^1.1.0",
     "ccxt": "^4.2.43",
     "dotenv": "^16.4.5",
