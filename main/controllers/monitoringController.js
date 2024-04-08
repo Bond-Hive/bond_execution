@@ -7,6 +7,7 @@ const yieldDisplay = require('../../strategy/carryTradeV1/yieldDisplay');
 const depositMonitor = require('../../strategy/carryTradeV1/depositMonitor');
 const deltaHedge = require('../../strategy/carryTradeV1/deltaHedge');
 const mainFunction =  require('../../strategy/carryTradeV1/mainFunctionV1');
+const { averageYieldsPostExecutionGlobal } = require('../../strategy/carryTradeV1/yieldDisplay'); // Adjust the path as necessary
 
 const getData = async (strategyName) => {
   const collectionName = strategyName + "-monitoring";
@@ -27,6 +28,36 @@ const formatData = (object) => {
     ]
   };
   return result;
+}
+
+const getYields = async (req, res) => {
+  try {
+    let formattedData = [];
+    Object.keys(averageYieldsPostExecutionGlobal).forEach(symbolFuture => {
+      const averageYieldPostExecution = averageYieldsPostExecutionGlobal[symbolFuture];
+      formattedData.push({
+        symbolFuture,
+        averageYieldPostExecution: formatYieldAsRange(averageYieldPostExecution) // Use the same formatting function
+      });
+    });
+    res.json(formattedData);
+  } catch (e) {
+    console.error(e);
+    res.status(500);
+    res.send({result: 'FAILURE', exception: e.message, error: e.stack});
+  }
+};
+
+function formatYieldAsRange(value, rangePercentage = 3.5) {
+  // Calculate the range values
+  const lowerBound = value * (1 - rangePercentage / 100);
+  const upperBound = value * (1 + rangePercentage / 100);
+  
+  // Convert to percentage format with two decimals
+  const lowerBoundPercent = (lowerBound * 100).toFixed(2) + '%';
+  const upperBoundPercent = (upperBound * 100).toFixed(2) + '%';
+  
+  return { lower: lowerBoundPercent, upper: upperBoundPercent };
 }
 
 const uploadPerformanceToMongoDB = async function (result) {
@@ -623,5 +654,6 @@ module.exports = {
   getMonitoringFromMongoV4,
   fetchMonitoringInfo,
   stopYieldCalc,
-  restartYieldCalc
+  restartYieldCalc,
+  getYields
 };

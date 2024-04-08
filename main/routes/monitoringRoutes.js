@@ -23,5 +23,6 @@ router.get('/getMonitoringFromMongo', monitoringController.getMonitoringFromMong
 router.get('/getMonitoringFromMongoV4', monitoringController.getMonitoringFromMongoV4);
 router.get('/stopYieldCalc', monitoringController.stopYieldCalc);
 router.get('/restartYieldCalc', monitoringController.restartYieldCalc);
+router.get('/getYields', monitoringController.getYields);
 
 module.exports = router;
