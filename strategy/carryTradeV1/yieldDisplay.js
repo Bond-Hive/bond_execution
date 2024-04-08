@@ -5,6 +5,8 @@ let yieldsLat30PostExecutionGlobal = {};
 let averageYieldsGlobal = {};
 let averageYieldsPostExecutionGlobal = {};
 let webSocketConnections = {};
+const WebSocket = require('ws');
+const http = require('http');
 
 const { dbMongoose } = require('@civfund/fund-libraries');
 
@@ -48,8 +50,6 @@ async function fetchLiveStrategies(){
   }
 }
 
-
-
 function setupYieldCalculation(symbolSpot,symbolFuture,maturity) {
   const futurePriceMonitor = new PriceMonitor('last', symbolFuture, null, 'binanceusdm', null, null, null, true);
   const spotPriceMonitor = new PriceMonitor('last', symbolSpot, null, 'binance', null, null, null, true);
@@ -80,7 +80,13 @@ function setupYieldCalculation(symbolSpot,symbolFuture,maturity) {
 
     averageYieldsGlobal[symbolFuture] = averageYield;
     averageYieldsPostExecutionGlobal[symbolFuture] = averageYieldPostExecution;
-
+    if (wss.clients.size > 0) { // Check if there are connected clients
+      const averageYieldPostExecutionRange = formatYieldAsRange(averageYieldPostExecution);
+      broadcast(JSON.stringify({ 
+        symbolFuture, 
+        averageYieldPostExecution: averageYieldPostExecutionRange 
+      }));
+    }
     // console.log(`Average yield on carry trade for ${symbolFuture}: ${averageYield}`);
     // console.log(`Average yield on carry trade for ${symbolFuture} post execution fees: ${averageYieldPostExecution}`);
   });
@@ -115,6 +121,52 @@ async function restartYieldCalc() {
 };
 
 fetchLiveStrategies();
+
+// Initialize a simple HTTP server
+const server = http.createServer((req, res) => {
+  res.writeHead(404);
+  res.end();
+});
+
+// Initialize the WebSocket server instance
+const wss = new WebSocket.Server({ server });
+
+// Define broadcast function at a higher scope to make it accessible everywhere
+function broadcast(data) {
+  wss.clients.forEach(function each(client) {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(data);
+    }
+  });
+}
+
+wss.on('connection', function connection(ws) {
+  console.log('A new client connected.');
+  // Send a message to the client indicating successful connection
+  ws.send(JSON.stringify({ message: 'Connected to yield calculation service' }));
+
+  // Remember to handle client disconnection
+  ws.on('close', function() {
+    console.log('Client disconnected.');
+  });
+});
+
+server.listen(8080, function listening() {
+  console.log('Listening on %d', server.address().port);
+});
+
+function formatYieldAsRange(value, rangePercentage = 3.5) {
+  // Calculate the range values
+  const lowerBound = value * (1 - rangePercentage / 100);
+  const upperBound = value * (1 + rangePercentage / 100);
+  
+  // Convert to percentage format with two decimals
+  const lowerBoundPercent = (lowerBound * 100).toFixed(2) + '%';
+  const upperBoundPercent = (upperBound * 100).toFixed(2) + '%';
+  
+  return { lower: lowerBoundPercent, upper: upperBoundPercent };
+}
+
 
 // Export the stop function if needed, or call it when appropriate
 module.exports = { 
