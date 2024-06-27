@@ -4,7 +4,8 @@ const { enterDeltaHedge } = require('./deltaHedge');
 const civfund = require('@civfund/fund-libraries');
 const { dbMongoose } = require('@civfund/fund-libraries');
 const { getTransactionDetails } = require('./RPCCalls');
-const { averageYieldsGlobal,webSocketConnections,averageYieldsPostExecutionGlobal } = require('./yieldDisplay'); // Adjust the path as necessary
+const { averageYieldsGlobal,webSocketConnections,averageYieldsPostExecutionGlobal, averageDiscountFactorPostExecutionGlobal } = require('./yieldDisplay'); // Adjust the path as necessary
+const { executeOracleDiscountFactor } = require('./oracle_discountFactor'); // Adjust the path as necessary
 
 
 const mainFunction = async () => {
@@ -115,6 +116,45 @@ async function checkExecutedTransaction(txid) {
   return true; // Document found
 }
 
+const oracleFunction = async (symbolFuture) => {
+  // Fetch the live strategies from MongoDB
+  let liveStrategiesObj = await getLiveStrategiesMongo();
+
+  // Find the strategy with the matching symbolFuture
+  let toSearch = Object.keys(liveStrategiesObj).find(key => liveStrategiesObj[key].symbolFuture === symbolFuture);
+  
+  // If no matching strategy is found, exit the function
+  if (!toSearch) {
+    console.error("No matching strategy found for the given symbolFuture.");
+    return;
+  }
+
+  // Extract the contract address and determine the RPC server URL
+  let contractAddress = liveStrategiesObj[toSearch].oracleAddress;
+  let rpcServerUrl = liveStrategiesObj[toSearch].oracleNetwork === "testnet"
+  ? "https://soroban-testnet.stellar.org:443"
+  : null; // Modify this line if you have URLs for other networks
+
+  // Assume averageDiscountFactorPostExecutionGlobal is available globally
+  let operationValue = Math.round(Number(averageDiscountFactorPostExecutionGlobal[symbolFuture]) * Math.pow(10, 18));
+  let operationValueType = "i128";
+  let secretKey = process.env.STELLAR_SECRET;
+
+  // Execute the operation
+  executeOracleDiscountFactor({
+    secretKey,
+    rpcServerUrl,
+    contractAddress,
+    operationName: "set_discount",
+    operationValue,
+    operationValueType,
+  });
+  return "Oracle Txn executed"
+}
+
+// Sample usage, assuming "BTC/USDT_240628" is a valid symbolFuture in liveStrategiesObj
+// oracleFunction("BTC/USDT_240628");
+
 async function uploadExecutedTransaction(depositResults,executedLiveStrategy,profitPercent,amount) {
   const dbName = 'bond-hive'; 
   const collectionName = 'executedTransaction';
@@ -173,4 +213,5 @@ mainFunction();
 
 module.exports = {
   mainFunction,
+  oracleFunction
 };

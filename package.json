@@ -10,7 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "@civfund/fund-libraries": "^1.2.72",
-    "@civfund/fund-monitoring": "^1.4.29",
+    "@civfund/fund-monitoring": "^1.4.48",
     "@solana/web3.js": "^1.91.2",
     "@stellar/stellar-sdk": "^12.1.0",
     "bignumber": "^1.1.0",

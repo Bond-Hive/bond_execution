@@ -24,5 +24,6 @@ router.get('/getMonitoringFromMongoV4', monitoringController.getMonitoringFromMo
 router.get('/stopYieldCalc', monitoringController.stopYieldCalc);
 router.get('/restartYieldCalc', monitoringController.restartYieldCalc);
 router.get('/getYields', monitoringController.getYields);
+router.post('/updateOracle/:symbolFuture1/:symbolFuture2/:maturity/:password', monitoringController.updateOracle);
 
 module.exports = router;

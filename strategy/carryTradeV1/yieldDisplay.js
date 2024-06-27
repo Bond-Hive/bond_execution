@@ -1,9 +1,10 @@
 'use strict';
 const { PriceMonitor } = require('@civfund/fund-libraries');
 let yieldsLast30Global = {};
-let yieldsLat30PostExecutionGlobal = {};
+let yieldsLast30PostExecutionGlobal = {};
 let averageYieldsGlobal = {};
 let averageYieldsPostExecutionGlobal = {};
+let averageDiscountFactorPostExecutionGlobal = {};
 let webSocketConnections = {};
 const WebSocket = require('ws');
 const http = require('http');
@@ -72,14 +73,20 @@ function setupYieldCalculation(symbolSpot,symbolFuture,maturity) {
       return; // Skip further processing
     }
 
-    yieldsLat30PostExecutionGlobal[symbolFuture] = (yieldsLat30PostExecutionGlobal[symbolFuture] || []).concat(yieldOnCarryTradePostFees).slice(-30);
+    yieldsLast30PostExecutionGlobal[symbolFuture] = (yieldsLast30PostExecutionGlobal[symbolFuture] || []).concat(yieldOnCarryTradePostFees).slice(-30);
     yieldsLast30Global[symbolFuture] = (yieldsLast30Global[symbolFuture] || []).concat(yieldOnCarryTrade).slice(-30);
     
     const averageYield = calculateAverage(yieldsLast30Global[symbolFuture]);
-    const averageYieldPostExecution = calculateAverage(yieldsLat30PostExecutionGlobal[symbolFuture]);
+    const averageYieldPostExecution = calculateAverage(yieldsLast30PostExecutionGlobal[symbolFuture]);
+    const averageDiscountFactorPostExecution = Math.pow(1 + (averageYieldPostExecution/365), daysToMaturity)
+
+    // console.log("averageYieldPostExecution",averageYieldPostExecution);
+    // console.log("averageDiscountFactorPostExecution",averageDiscountFactorPostExecution);
 
     averageYieldsGlobal[symbolFuture] = averageYield;
     averageYieldsPostExecutionGlobal[symbolFuture] = averageYieldPostExecution;
+    averageDiscountFactorPostExecutionGlobal[symbolFuture] = averageDiscountFactorPostExecution;
+
     if (wss.clients.size > 0) { // Check if there are connected clients
       const averageYieldPostExecutionRange = formatYieldAsRange(averageYieldPostExecution);
       broadcast(JSON.stringify({ 
@@ -174,5 +181,6 @@ module.exports = {
   stopWebSockets,
   averageYieldsGlobal,
   averageYieldsPostExecutionGlobal,
-  webSocketConnections
+  webSocketConnections,
+  averageDiscountFactorPostExecutionGlobal
 };

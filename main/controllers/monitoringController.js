@@ -48,6 +48,23 @@ const getYields = async (req, res) => {
   }
 };
 
+const updateOracle = async (req, res) => {
+  if (req.params.password === process.env.ORACLE_UPDATE_PASSWORD) { // Use environment variable for the password
+    let symbol = `${req.params.symbolFuture1}/${req.params.symbolFuture2}_${req.params.maturity}`;
+    console.log("symbol", symbol);
+
+    try {
+      const result = await mainFunction.oracleFunction(symbol); // Handle await separately
+      res.send(result); // Send the result
+    } catch (e) {
+      console.error(e);
+      res.status(500).send({ result: 'FAILURE', exception: e.message, error: e.stack }); // Chain status and send correctly
+    }
+  } else {
+    res.status(401).send("Wrong password"); // Use proper HTTP status code for unauthorized access
+  }
+};
+
 function formatYieldAsRange(value, rangePercentage = 3.5) {
   // Calculate the range values
   const lowerBound = value * (1 - rangePercentage / 100);
@@ -655,5 +672,6 @@ module.exports = {
   fetchMonitoringInfo,
   stopYieldCalc,
   restartYieldCalc,
-  getYields
+  getYields,
+  updateOracle
 };
