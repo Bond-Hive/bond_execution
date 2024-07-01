@@ -116,12 +116,12 @@ async function checkExecutedTransaction(txid) {
   return true; // Document found
 }
 
-const oracleFunction = async (symbolFuture) => {
+const oracleFunction = async (contractAddress) => {
   // Fetch the live strategies from MongoDB
   let liveStrategiesObj = await getLiveStrategiesMongo();
 
   // Find the strategy with the matching symbolFuture
-  let toSearch = Object.keys(liveStrategiesObj).find(key => liveStrategiesObj[key].symbolFuture === symbolFuture);
+  let toSearch = Object.keys(liveStrategiesObj).find(key => liveStrategiesObj[key].oracleAddress === contractAddress);
   
   // If no matching strategy is found, exit the function
   if (!toSearch) {
@@ -130,13 +130,12 @@ const oracleFunction = async (symbolFuture) => {
   }
 
   // Extract the contract address and determine the RPC server URL
-  let contractAddress = liveStrategiesObj[toSearch].oracleAddress;
   let rpcServerUrl = liveStrategiesObj[toSearch].oracleNetwork === "testnet"
   ? "https://soroban-testnet.stellar.org:443"
   : null; // Modify this line if you have URLs for other networks
 
   // Assume averageDiscountFactorPostExecutionGlobal is available globally
-  let operationValue = Math.round(Number(averageDiscountFactorPostExecutionGlobal[symbolFuture]) * Math.pow(10, 18));
+  let operationValue = Math.round(Number(averageDiscountFactorPostExecutionGlobal[liveStrategiesObj[toSearch].symbolFuture]) * Math.pow(10, 7));
   let operationValueType = "i128";
   let secretKey = process.env.STELLAR_SECRET;
 

@@ -49,12 +49,14 @@ const getYields = async (req, res) => {
 };
 
 const updateOracle = async (req, res) => {
-  if (req.params.password === process.env.ORACLE_UPDATE_PASSWORD) { // Use environment variable for the password
-    let symbol = `${req.params.symbolFuture1}/${req.params.symbolFuture2}_${req.params.maturity}`;
-    console.log("symbol", symbol);
+  const { contractAddress } = req.body; // Extract contract address from the body
+  const password = req.headers.password; // Extract password from the headers
+  console.log("password",password);
+  console.log("contractAddress",contractAddress);
 
+  if (password === process.env.ORACLE_UPDATE_PASSWORD) { // Use environment variable for the password
     try {
-      const result = await mainFunction.oracleFunction(symbol); // Handle await separately
+      const result = await mainFunction.oracleFunction(contractAddress); // Handle await separately
       res.send(result); // Send the result
     } catch (e) {
       console.error(e);
@@ -64,6 +66,7 @@ const updateOracle = async (req, res) => {
     res.status(401).send("Wrong password"); // Use proper HTTP status code for unauthorized access
   }
 };
+
 
 function formatYieldAsRange(value, rangePercentage = 3.5) {
   // Calculate the range values
