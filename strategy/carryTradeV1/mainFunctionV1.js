@@ -116,7 +116,7 @@ async function checkExecutedTransaction(txid) {
   return true; // Document found
 }
 
-const oracleFunction = async (contractAddress) => {
+const oracleFunction = async (contractAddress,secretKey) => {
   // Fetch the live strategies from MongoDB
   let liveStrategiesObj = await getLiveStrategiesMongo();
 
@@ -135,16 +135,17 @@ const oracleFunction = async (contractAddress) => {
   : null; // Modify this line if you have URLs for other networks
 
   // Assume averageDiscountFactorPostExecutionGlobal is available globally
-  let operationValue = Math.round(Number(averageDiscountFactorPostExecutionGlobal[liveStrategiesObj[toSearch].symbolFuture]) * Math.pow(10, 7));
+  let operationValue = Math.round(1/Number(averageDiscountFactorPostExecutionGlobal[liveStrategiesObj[toSearch].symbolFuture]) * Math.pow(10, 7));
+  console.log("quote value",operationValue);
   let operationValueType = "i128";
-  let secretKey = process.env.STELLAR_SECRET;
+  secretKey = secretKey || process.env.STELLAR_SECRET;
 
   // Execute the operation
   executeOracleDiscountFactor({
     secretKey,
     rpcServerUrl,
     contractAddress,
-    operationName: "set_discount",
+    operationName: "set_quote",
     operationValue,
     operationValueType,
   });

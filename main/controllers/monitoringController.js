@@ -49,14 +49,12 @@ const getYields = async (req, res) => {
 };
 
 const updateOracle = async (req, res) => {
-  const { contractAddress } = req.body; // Extract contract address from the body
+  const { contractAddress, secretKey } = req.body; // Extract contract address and secret key from the body
   const password = req.headers.password; // Extract password from the headers
-  console.log("password",password);
-  console.log("contractAddress",contractAddress);
 
   if (password === process.env.ORACLE_UPDATE_PASSWORD) { // Use environment variable for the password
     try {
-      const result = await mainFunction.oracleFunction(contractAddress); // Handle await separately
+      const result = await mainFunction.oracleFunction(contractAddress, secretKey); // Handle await separately
       res.send(result); // Send the result
     } catch (e) {
       console.error(e);
