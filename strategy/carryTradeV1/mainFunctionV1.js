@@ -5,7 +5,7 @@ const civfund = require('@civfund/fund-libraries');
 const { dbMongoose } = require('@civfund/fund-libraries');
 const { getTransactionDetails } = require('./RPCCalls');
 const { averageYieldsGlobal,webSocketConnections,averageYieldsPostExecutionGlobal, averageDiscountFactorPostExecutionGlobal } = require('./yieldDisplay'); // Adjust the path as necessary
-const { executeOracleDiscountFactor } = require('./oracle_discountFactor'); // Adjust the path as necessary
+const { executeOracleDiscountFactor, invokeFunction } = require('./oracle_discountFactor'); // Adjust the path as necessary
 
 
 const mainFunction = async () => {
@@ -135,20 +135,33 @@ const oracleFunction = async (contractAddress,secretKey) => {
   : null; // Modify this line if you have URLs for other networks
 
   // Assume averageDiscountFactorPostExecutionGlobal is available globally
-  let operationValue = Math.round(1/Number(averageDiscountFactorPostExecutionGlobal[liveStrategiesObj[toSearch].symbolFuture]) * Math.pow(10, 7));
+  let operationValue = Math.round(Number(averageDiscountFactorPostExecutionGlobal[liveStrategiesObj[toSearch].symbolFuture]) * Math.pow(10, 7));
   console.log("quote value",operationValue);
   let operationValueType = "i128";
   secretKey = secretKey || process.env.STELLAR_SECRET;
 
-  // Execute the operation
-  executeOracleDiscountFactor({
+  let quote_value = await invokeFunction({
     secretKey,
     rpcServerUrl,
     contractAddress,
-    operationName: "set_quote",
-    operationValue,
-    operationValueType,
+    operationName: "quote",
   });
+  console.log("quote_value: ",quote_value);
+
+  if (quote_value === BigInt(0)){
+    console.log("quote_value is zero, updating value");
+    // Execute the operation
+    executeOracleDiscountFactor({
+      secretKey,
+      rpcServerUrl,
+      contractAddress,
+      operationName: "set_quote",
+      operationValue,
+      operationValueType,
+    });
+  } else {
+    ("quote hasn't expired, hence no update");
+  }
   return "Oracle Txn executed"
 }
 
