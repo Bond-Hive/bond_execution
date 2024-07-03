@@ -65,10 +65,9 @@ function setupYieldCalculation(symbolSpot,symbolFuture,maturity) {
     const currentDate = new Date();
     const daysToMaturity = Math.ceil((maturityDate - currentDate) / (1000 * 60 * 60 * 24));
     const yieldOnCarryTrade = (futurePrice - spotPrice) / spotPrice * 365 / daysToMaturity;
-    const yieldOnCarryTradePostFees = ((((futurePrice - spotPrice) / spotPrice)) *(1-0.01)) * 365 / daysToMaturity;
-
-     // Check if yield is more than 500% to avoid outliers like infinity and so on
-     if (Math.abs(yieldOnCarryTrade) > 5 || Math.abs(yieldOnCarryTradePostFees) > 5) {
+    const yieldOnCarryTradePostFees = ((((futurePrice - spotPrice) / spotPrice)) *(1-0.09)) * 365 / daysToMaturity;
+    // Check if yield is more than 500% to avoid outliers like infinity and so on
+    if (Math.abs(yieldOnCarryTrade) > 5 || Math.abs(yieldOnCarryTradePostFees) > 5) {
       console.log(`Yield for ${symbolFuture} an outlier. Ignoring...`);
       return; // Skip further processing
     }

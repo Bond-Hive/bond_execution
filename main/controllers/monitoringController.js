@@ -66,7 +66,7 @@ const updateOracle = async (req, res) => {
 };
 
 
-function formatYieldAsRange(value, rangePercentage = 3.5) {
+function formatYieldAsRange(value, rangePercentage = 1) {
   // Calculate the range values
   const lowerBound = value * (1 - rangePercentage / 100);
   const upperBound = value * (1 + rangePercentage / 100);

@@ -12,9 +12,9 @@ const mainFunction = async () => {
   let liveStrategiesObj = await getLiveStrategiesMongo();
   const onMessageCallback = async (response) => {
     if (response.e =="outboundAccountPosition"){ // need to change this to balanceUpdate on main, testing done with 'outboundAccountPosition'
-      let depositResults = await getBinanceDeposits('binance','Test','USDT',getUnixTimestampForLastDay());
+      let depositResults = await getBinanceDeposits('binance','Test','USDC',getUnixTimestampForLastDay());
       for (let deposit in depositResults){
-        if (depositResults[deposit].network == 'SOL' && depositResults[deposit].currency == 'USDT'){ // need to change this to USDT on main testing
+        if (depositResults[deposit].network == 'XLM' && depositResults[deposit].currency == 'USDC'){ // need to change this to USDT on main testing
           if (!(await checkExecutedTransaction(depositResults[deposit].txid))){
             let senderAddress = await getTransactionDetails(depositResults[deposit].txid);
             let executedLiveStrategy; let profitPercent; let amount;
@@ -22,7 +22,35 @@ const mainFunction = async () => {
               let strategy = liveStrategiesObj[liveStrategy];
               let clientOrderId = `V${strategy.strategy}-${depositResults[deposit].id}`;
               profitPercent = calculateProfitPercent(strategy.symbolFuture);
-              amount = depositResults[deposit].amount/(webSocketConnections[strategy.symbolFuture].getPrice())
+              amount = depositResults[deposit].amount/(webSocketConnections[strategy.symbolFuture].getPrice());
+              // spot buy 20% of asset
+              executeSpotOrderWithWebsocket(
+                strategy.spotExchange,
+                strategy.subaccount,
+                strategy.symbolSpot,
+                amount * 0.2,
+                strategy.spotDecimals,
+                "BUY",
+                "MARKET",
+                `V${strategy.strategy}-${depositResults[deposit].id}-20`
+              );
+              // transfer 20% to coin-m
+              internalFundsTransfer(
+                strategy.spotExchange,
+                strategy.subaccount,
+                strategy.symbolSpot,
+                amount * 0.2,
+                'spot',
+                'future'
+              );
+              getBinanceInternalTransfers(
+                strategy.futuresExchange,
+                strategy.subaccount,
+                strategy.symbolSpot,
+                // add since
+              )
+
+              // execute short futures for 100% - together
               if (strategy.poolAddress === senderAddress) {
                 await enterDeltaHedge(
                   strategy.spotExchange,
@@ -40,6 +68,24 @@ const mainFunction = async () => {
                 executedLiveStrategy = strategy;
                 break;
               }
+
+              // execute spot buy for 80% - together
+              // transfer remaining 80% to coin-m
+              internalFundsTransfer(
+                strategy.spotExchange,
+                strategy.subaccount,
+                strategy.symbolSpot,
+                amount * 0.8,
+                'spot',
+                'future'
+              );
+              getBinanceInternalTransfers(
+                strategy.futuresExchange,
+                strategy.subaccount,
+                strategy.symbolSpot,
+                // add since
+              )
+
             };
             uploadExecutedTransaction(depositResults[deposit],executedLiveStrategy,profitPercent,amount);
             // transfer the assets from spot to future
@@ -66,6 +112,61 @@ function getUnixTimestampForLastDay() {
   
   return Math.floor(lastDayTimestamp.getTime()); // Convert to Unix timestamp (in seconds) and return
 }
+
+const executeSpotOrderWithWebsocket = async function(
+  exchange,
+  subaccount,
+  pair,
+  amount,
+  decimals,
+  side,
+  orderType,
+  clientOrderId
+  ){
+  let cex = await civfund.initializeCcxt(exchange,subaccount);
+  civfund.ccxt.ccxtCreateOrderWithNomenclature(
+    cex,
+    exchange,
+    pair,
+    orderType,
+    side,
+    Number(Number(amount).toFixed(decimals)),
+    undefined,
+    `${clientOrderId}`,
+    process.env.CCXT_PASSWORD,
+  );
+  return "Order Executed";
+  // executeSpotOrderWithWebsocket('binance','Test','ETH/USDT',0.005,3,'BUY','MARKET','V2_21');
+};
+
+// Internal Asset transfer
+const internalFundsTransfer = async function(exchangeName,subaccount,assetName,amount,fromAccount,toAccount) { // --> Sample for Frank
+  let cex = civfund.initializeCcxt(exchangeName,subaccount);
+  return await cex.transfer(assetName, amount, fromAccount, toAccount)
+  // Sample use --> internalFundsTransfer('binanceusdm','Test',"USDT",1000,'spot','future');
+};
+
+const getBinanceInternalTransfers = async function(exchangeName,subaccount,assetName,since,limit=50) { // --> Sample for Frank
+  let cex = civfund.initializeCcxt(exchangeName,subaccount);
+  console.log(await cex.fetchTransfers(assetName, since, limit));
+  // Sample use --> getBinanceTransfers('binanceusdm','Test7','USDT',1685111342000);
+  /* Payload for getBinanceTransfers
+  [
+  {
+    info: { ... },
+    id: "93920432048",
+    timestamp: 1646764072000,
+    datetime: "2022-03-08T18:27:52.000Z",
+    currency: "USDT",
+    amount: 11.31,
+    fromAccount: "spot",
+    toAccount: "future",
+    status: "ok"
+  }
+  ]
+  */
+};
+
 
 async function getLiveStrategiesMongo() {
   const dbName = 'bond-hive'; 
@@ -135,7 +236,7 @@ const oracleFunction = async (contractAddress,secretKey) => {
   : null; // Modify this line if you have URLs for other networks
 
   // Assume averageDiscountFactorPostExecutionGlobal is available globally
-  let operationValue = Math.round(Number(averageDiscountFactorPostExecutionGlobal[liveStrategiesObj[toSearch].symbolFuture]) * Math.pow(10, 7));
+  let operationValue = Math.round(Number(averageDiscountFactorPostExecutionGlobal[liveStrategiesObj[toSearch].symbolFuture]/100) * Math.pow(10, 7));
   console.log("quote value",operationValue);
   let operationValueType = "i128";
   secretKey = secretKey || process.env.STELLAR_SECRET;
