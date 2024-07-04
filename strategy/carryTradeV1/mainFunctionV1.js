@@ -217,57 +217,65 @@ async function checkExecutedTransaction(txid) {
   return true; // Document found
 }
 
-const oracleFunction = async (contractAddress,secretKey) => {
-  // Fetch the live strategies from MongoDB
-  let liveStrategiesObj = await getLiveStrategiesMongo();
-  let operationValue;
-  let quote_value;
+const oracleFunction = async (contractAddress, secretKey) => {
+  try {
+    // Fetch the live strategies from MongoDB
+    let liveStrategiesObj = await getLiveStrategiesMongo();
+    let operationValue;
 
-  // Find the strategy with the matching symbolFuture
-  let toSearch = Object.keys(liveStrategiesObj).find(key => liveStrategiesObj[key].oracleAddress === contractAddress);
-  
-  // If no matching strategy is found, exit the function
-  if (!toSearch) {
-    console.error("No matching strategy found for the given symbolFuture.");
-    return;
-  }
+    // Find the strategy with the matching symbolFuture
+    let toSearch = Object.keys(liveStrategiesObj).find(key => liveStrategiesObj[key].oracleAddress === contractAddress);
 
-  // Extract the contract address and determine the RPC server URL
-  let rpcServerUrl = liveStrategiesObj[toSearch].oracleNetwork === "testnet"
-  ? "https://soroban-testnet.stellar.org:443"
-  : null; // Modify this line if you have URLs for other networks
+    // If no matching strategy is found, exit the function
+    if (!toSearch) {
+      console.error("No matching strategy found for the given symbolFuture.");
+      return { error: "No matching strategy found for the given symbolFuture." };
+    }
 
-  // Assume averageDiscountFactorPostExecutionGlobal is available globally
-  operationValue = Math.round(Number(averageDiscountFactorPostExecutionGlobal[liveStrategiesObj[toSearch].symbolFuture]/100) * Math.pow(10, 7));
-  console.log("quote value",operationValue);
-  let operationValueType = "i128";
-  secretKey = secretKey || process.env.STELLAR_SECRET;
+    // Extract the contract address and determine the RPC server URL
+    let rpcServerUrl = liveStrategiesObj[toSearch].oracleNetwork === "testnet"
+      ? "https://soroban-testnet.stellar.org:443"
+      : null; // Modify this line if you have URLs for other networks
 
-  quote_value = await invokeFunction({
-    secretKey,
-    rpcServerUrl,
-    contractAddress,
-    operationName: "quote",
-  });
-  console.log("quote_value: ",quote_value);
+    // Assume averageDiscountFactorPostExecutionGlobal is available globally
+    operationValue = Math.round(Number(averageDiscountFactorPostExecutionGlobal[liveStrategiesObj[toSearch].symbolFuture] / 100) * Math.pow(10, 7));
+    console.log("quote value", operationValue);
+    let operationValueType = "i128";
+    secretKey = secretKey || process.env.STELLAR_SECRET;
 
-  if (quote_value === BigInt(0)){
-    console.log("quote_value is zero, updating value");
-    // Execute the operation
-    executeOracleDiscountFactor({
+    // Invoke function to get the quote value asynchronously
+    invokeFunction({
       secretKey,
       rpcServerUrl,
       contractAddress,
-      operationName: "set_quote",
-      operationValue,
-      operationValueType,
+      operationName: "quote",
+    }).then(quote_value => {
+      console.log("quote_value: ", quote_value);
+
+      if (quote_value === BigInt(0)) {
+        console.log("quote_value is zero, updating value");
+        // Execute the operation to set the quote value
+        executeOracleDiscountFactor({
+          secretKey,
+          rpcServerUrl,
+          contractAddress,
+          operationName: "set_quote",
+          operationValue,
+          operationValueType,
+        });
+      }
+    }).catch(error => {
+      console.error("Error invoking function to get quote value:", error);
     });
-  } else {
-    let returnQuote = BigInt(quote_value);
-    return {quote:returnQuote.toString()};
+
+    // Return immediately with the operation value as a string
+    return { quote: operationValue.toString() };
+  } catch (error) {
+    console.error("An error occurred in oracleFunction:", error);
+    throw error;
   }
-  return {quote:operationValue};
-}
+};
+
 
 // Sample usage, assuming "BTC/USDT_240628" is a valid symbolFuture in liveStrategiesObj
 // oracleFunction("BTC/USDT_240628");
