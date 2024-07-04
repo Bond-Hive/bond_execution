@@ -221,6 +221,7 @@ const oracleFunction = async (contractAddress,secretKey) => {
   // Fetch the live strategies from MongoDB
   let liveStrategiesObj = await getLiveStrategiesMongo();
   let operationValue;
+  let quote_value;
 
   // Find the strategy with the matching symbolFuture
   let toSearch = Object.keys(liveStrategiesObj).find(key => liveStrategiesObj[key].oracleAddress === contractAddress);
@@ -242,7 +243,7 @@ const oracleFunction = async (contractAddress,secretKey) => {
   let operationValueType = "i128";
   secretKey = secretKey || process.env.STELLAR_SECRET;
 
-  let quote_value = await invokeFunction({
+  quote_value = await invokeFunction({
     secretKey,
     rpcServerUrl,
     contractAddress,
@@ -262,7 +263,8 @@ const oracleFunction = async (contractAddress,secretKey) => {
       operationValueType,
     });
   } else {
-    return {quote:BigInt(quote_value)};
+    let returnQuote = BigInt(quote_value);
+    return {quote:returnQuote};
   }
   return {quote:operationValue};
 }
