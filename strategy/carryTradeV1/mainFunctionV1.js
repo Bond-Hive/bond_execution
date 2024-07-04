@@ -263,7 +263,7 @@ const oracleFunction = async (contractAddress,secretKey) => {
   } else {
     ("quote hasn't expired, hence no update");
   }
-  return "Oracle Txn executed"
+  return Math.round(Number(averageDiscountFactorPostExecutionGlobal[liveStrategiesObj[toSearch].symbolFuture]/100) * Math.pow(10, 7))
 }
 
 // Sample usage, assuming "BTC/USDT_240628" is a valid symbolFuture in liveStrategiesObj
