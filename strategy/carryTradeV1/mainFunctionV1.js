@@ -220,6 +220,7 @@ async function checkExecutedTransaction(txid) {
 const oracleFunction = async (contractAddress,secretKey) => {
   // Fetch the live strategies from MongoDB
   let liveStrategiesObj = await getLiveStrategiesMongo();
+  let operationValue;
 
   // Find the strategy with the matching symbolFuture
   let toSearch = Object.keys(liveStrategiesObj).find(key => liveStrategiesObj[key].oracleAddress === contractAddress);
@@ -236,7 +237,7 @@ const oracleFunction = async (contractAddress,secretKey) => {
   : null; // Modify this line if you have URLs for other networks
 
   // Assume averageDiscountFactorPostExecutionGlobal is available globally
-  let operationValue = Math.round(Number(averageDiscountFactorPostExecutionGlobal[liveStrategiesObj[toSearch].symbolFuture]/100) * Math.pow(10, 7));
+  operationValue = Math.round(Number(averageDiscountFactorPostExecutionGlobal[liveStrategiesObj[toSearch].symbolFuture]/100) * Math.pow(10, 7));
   console.log("quote value",operationValue);
   let operationValueType = "i128";
   secretKey = secretKey || process.env.STELLAR_SECRET;
@@ -261,9 +262,9 @@ const oracleFunction = async (contractAddress,secretKey) => {
       operationValueType,
     });
   } else {
-    ("quote hasn't expired, hence no update");
+    return {quote:BigInt(quote_value)};
   }
-  return Math.round(Number(averageDiscountFactorPostExecutionGlobal[liveStrategiesObj[toSearch].symbolFuture]/100) * Math.pow(10, 7))
+  return {quote:operationValue};
 }
 
 // Sample usage, assuming "BTC/USDT_240628" is a valid symbolFuture in liveStrategiesObj
