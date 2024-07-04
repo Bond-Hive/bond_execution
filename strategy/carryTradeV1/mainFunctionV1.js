@@ -264,7 +264,7 @@ const oracleFunction = async (contractAddress,secretKey) => {
     });
   } else {
     let returnQuote = BigInt(quote_value);
-    return {quote:returnQuote};
+    return {quote:returnQuote.toString()};
   }
   return {quote:operationValue};
 }
