@@ -19,6 +19,9 @@ async function executeOracleDiscountFactor({
   operationValueType, // Parameter to specify the type of the value, e.g., "i128"
   transactionTimeout = 30, // Default timeout set to 30 seconds
 }) {
+  let retryLimit = 30; // Number of retries
+  let retries = 0;
+
   // Create a Keypair from the secret key provided
   const sourceKeypair = Keypair.fromSecret(secretKey);
 
@@ -58,15 +61,17 @@ async function executeOracleDiscountFactor({
     if (sendResponse.status === "PENDING") {
       let getResponse = await server.getTransaction(sendResponse.hash);
 
-      while (getResponse.status === "NOT_FOUND") {
+      while (getResponse.status === "NOT_FOUND" && retries < retryLimit) {
         console.log("Waiting for transaction confirmation...");
         await new Promise((resolve) => setTimeout(resolve, 1000));
         getResponse = await server.getTransaction(sendResponse.hash);
+        retries++; // Increment the retry counter
       }
 
-      // console.log(`getTransaction response: ${JSON.stringify(getResponse)}`);
-
-      if (getResponse.status === "SUCCESS") {
+      if (retries >= retryLimit) {
+        console.log("Transaction confirmation failed: Timeout after multiple retries.");
+        return "Txn failed"
+      } else if (getResponse.status === "SUCCESS") {
         if (!getResponse.resultMetaXdr) {
           throw "Empty resultMetaXDR in getTransaction response";
         }
