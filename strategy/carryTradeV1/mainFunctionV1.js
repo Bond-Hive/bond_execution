@@ -242,7 +242,7 @@ const oracleFunction = async (contractAddress, secretKey) => {
     operationValue = Math.round(Number(averageDiscountFactorPostExecutionGlobal[liveStrategiesObj[toSearch].symbolFuture] / 100) * Math.pow(10, 7));
     console.log("quote value", operationValue);
     let operationValueType = "i128";
-    secretKey = secretKey || process.env.STELLAR_TEST_KIYF;
+    secretKey = secretKey || (network === "testnet" ? process.env.STELLAR_TEST_KIYF : process.env.STELLAR_PUB_ORACLE_DEPLOYER);
 
     // Invoke function to get the quote value asynchronously
     invokeFunction({
