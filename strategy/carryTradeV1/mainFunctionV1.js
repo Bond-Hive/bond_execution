@@ -233,15 +233,16 @@ const oracleFunction = async (contractAddress, secretKey) => {
     }
 
     // Extract the contract address and determine the RPC server URL
-    let rpcServerUrl = liveStrategiesObj[toSearch].oracleNetwork === "testnet"
+    let network = liveStrategiesObj[toSearch].oracleNetwork
+    let rpcServerUrl = network === "testnet"
       ? "https://soroban-testnet.stellar.org:443"
-      : null; // Modify this line if you have URLs for other networks
+      : process.env.QUICKNODE_API_STELLAR_PUBNET; // Modify this line if you have URLs for other networks
 
     // Assume averageDiscountFactorPostExecutionGlobal is available globally
     operationValue = Math.round(Number(averageDiscountFactorPostExecutionGlobal[liveStrategiesObj[toSearch].symbolFuture] / 100) * Math.pow(10, 7));
     console.log("quote value", operationValue);
     let operationValueType = "i128";
-    secretKey = secretKey || process.env.STELLAR_SECRET;
+    secretKey = secretKey || process.env.STELLAR_TEST_KIYF;
 
     // Invoke function to get the quote value asynchronously
     invokeFunction({
@@ -249,6 +250,7 @@ const oracleFunction = async (contractAddress, secretKey) => {
       rpcServerUrl,
       contractAddress,
       operationName: "quote",
+      network
     }).then(quote_value => {
       console.log("quote_value: ", quote_value);
 
@@ -262,6 +264,7 @@ const oracleFunction = async (contractAddress, secretKey) => {
           operationName: "set_quote",
           operationValue,
           operationValueType,
+          network
         });
       }
     }).catch(error => {
