@@ -44,11 +44,13 @@ async function executeOracleDiscountFactor({
   if (network !== "testnet" && network !== "publicnet") {
    throw new Error("Invalid network type. Please specify 'testnet' or 'publicnet'.");
   }
+  let networkPassphrase = network === "testnet" ? Networks.TESTNET : Networks.PUBLIC;
 
+  console.log("networkPassphrase",networkPassphrase);
   // Build the transaction
   let builtTransaction = new TransactionBuilder(sourceAccount, {
     fee: BASE_FEE,
-    networkPassphrase: network === "testnet" ? Networks.TESTNET : Networks.PUBNET,
+    networkPassphrase: networkPassphrase,
   })
     .addOperation(contract.call(operationName, operationVal))
     .setTimeout(transactionTimeout)
@@ -127,10 +129,13 @@ async function invokeFunction({
     throw new Error("Invalid network type. Please specify 'testnet' or 'publicnet'.");
   }
 
+  let networkPassphrase = network === "testnet" ? Networks.TESTNET : Networks.PUBLIC;
+
+  console.log("networkPassphrase",networkPassphrase);
   // Build the transaction
   let builtTransaction = new TransactionBuilder(sourceAccount, {
     fee: BASE_FEE,
-    networkPassphrase: network === "testnet" ? Networks.TESTNET : Networks.PUBNET,
+    networkPassphrase: networkPassphrase,
   })
     .addOperation(contract.call(operationName))
     .setTimeout(transactionTimeout)
@@ -213,10 +218,12 @@ async function sendTransaction({
   if (network !== "testnet" && network !== "publicnet") {
     throw new Error("Invalid network type. Please specify 'testnet' or 'publicnet'.");
   }
-  
+  let networkPassphrase = network === "testnet" ? Networks.TESTNET : Networks.PUBLIC;
+
+  console.log("networkPassphrase",networkPassphrase);
   transaction = new StellarSdk.TransactionBuilder(sourceAccount, {
     fee: StellarSdk.BASE_FEE,
-    networkPassphrase: network === "testnet" ? Networks.TESTNET : Networks.PUBNET,
+    networkPassphrase: networkPassphrase,
   })
     .addOperation(
       StellarSdk.Operation.payment({
@@ -281,9 +288,12 @@ async function changeTrust({
     throw new Error("Invalid network type. Please specify 'testnet' or 'publicnet'.");
   }
 
+  let networkPassphrase = network === "testnet" ? Networks.TESTNET : Networks.PUBLIC;
+  console.log("networkPassphrase",networkPassphrase);
+
   transaction = new StellarSdk.TransactionBuilder(sourceAccount, {
     fee: StellarSdk.BASE_FEE,
-    networkPassphrase: network === "testnet" ? Networks.TESTNET : Networks.PUBNET,
+    networkPassphrase: networkPassphrase,
   })
     .addOperation(
       StellarSdk.Operation.changeTrust({
