@@ -95,13 +95,13 @@ async function checkTreasury(contractAddress = null) {
       try {
         // Assuming retrieveAccountAndFilterBalanceFromSecret is an async function that returns the balance
         let usdcBalance = (await retrieveAccountAndFilterBalanceFromSecret(secretKey)).balance;
-        console.log("usdcBalance:", usdcBalance);
         if (usdcBalance == 0){
           console.log("nothing to transfer");
-          return "nothing to transfer"; 
+          continue; 
         }
-        sendTransaction({
-          secretKey: process.env.STELLAR_PUB_BTC_DEC24_TREASURY,
+        await sleep(1000); // Sleep for 3 sec before processing the next strategy
+        await sendTransaction({
+          secretKey: secretKey,
           rpcServerUrl: process.env.QUICKNODE_API_STELLAR_PUBNET,
           destinationId: process.env.BINANCE_STELLAR_ADDRESS,
           assetCode: "USDC",
@@ -114,7 +114,7 @@ async function checkTreasury(contractAddress = null) {
         console.error("Error retrieving USDC balance:", error);
       }
     }
-    await sleep(3000); // Sleep for 3 sec before processing the next strategy
+    await sleep(1000); // Sleep for 3 sec before processing the next strategy
   }
   console.log("transfers processed");
   return "transfers processed";
