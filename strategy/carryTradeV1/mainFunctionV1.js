@@ -3,9 +3,9 @@ const { webSocketOrdersBinance } = require('./depositMonitor');
 const { enterDeltaHedge } = require('./deltaHedge');
 const civfund = require('@civfund/fund-libraries');
 const { dbMongoose } = require('@civfund/fund-libraries');
-const { getTransactionDetails } = require('./RPCCalls');
 const { averageYieldsGlobal,webSocketConnections,averageYieldsPostExecutionGlobal, averageDiscountFactorPostExecutionGlobal } = require('./yieldDisplay'); // Adjust the path as necessary
 const { executeOracleDiscountFactor, invokeFunction } = require('./oracle_discountFactor'); // Adjust the path as necessary
+const treasury_functions = require('./treasury_operations');
 
 
 const mainFunction = async () => {
@@ -16,7 +16,7 @@ const mainFunction = async () => {
       for (let deposit in depositResults){
         if (depositResults[deposit].network == 'XLM' && depositResults[deposit].currency == 'USDC'){ // need to change this to USDT on main testing
           if (!(await checkExecutedTransaction(depositResults[deposit].txid))){
-            let senderAddress = await getTransactionDetails(depositResults[deposit].txid);
+            // let senderAddress = await getTransactionDetails(depositResults[deposit].txid); // need to change to Stellar
             let executedLiveStrategy; let profitPercent; let amount;
             for (let liveStrategy in liveStrategiesObj) {
               let strategy = liveStrategiesObj[liveStrategy];
@@ -224,7 +224,7 @@ const oracleFunction = async (contractAddress, secretKey) => {
     let operationValue;
 
     // Find the strategy with the matching symbolFuture
-    let toSearch = Object.keys(liveStrategiesObj).find(key => liveStrategiesObj[key].oracleAddress === contractAddress);
+    let toSearch = Object.keys(liveStrategiesObj).find(key => liveStrategiesObj[key].contractAddress === contractAddress);
 
     // If no matching strategy is found, exit the function
     if (!toSearch) {
@@ -341,5 +341,5 @@ mainFunction();
 
 module.exports = {
   mainFunction,
-  oracleFunction
+  oracleFunction,
 };

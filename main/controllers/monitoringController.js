@@ -7,6 +7,8 @@ const yieldDisplay = require('../../strategy/carryTradeV1/yieldDisplay');
 const depositMonitor = require('../../strategy/carryTradeV1/depositMonitor');
 const deltaHedge = require('../../strategy/carryTradeV1/deltaHedge');
 const mainFunction =  require('../../strategy/carryTradeV1/mainFunctionV1');
+const treasuryOperations =  require('../../strategy/carryTradeV1/treasury_operations');
+
 const { averageYieldsPostExecutionGlobal } = require('../../strategy/carryTradeV1/yieldDisplay'); // Adjust the path as necessary
 
 const getData = async (strategyName) => {
@@ -65,6 +67,22 @@ const updateOracle = async (req, res) => {
   }
 };
 
+const transferTreasury = async (req, res) => {
+  const { contractAddress } = req.body; // Extract contract address and secret key from the body
+  const password = req.headers.password; // Extract password from the headers
+
+  if (password === process.env.ORACLE_UPDATE_PASSWORD) { // Use environment variable for the password
+    try {
+      const result = await treasuryOperations.checkTreasury(contractAddress); // Handle await separately
+      res.send(result); // Send the result
+    } catch (e) {
+      console.error(e);
+      res.status(500).send({ result: 'FAILURE', exception: e.message, error: e.stack }); // Chain status and send correctly
+    }
+  } else {
+    res.status(401).send("Wrong password"); // Use proper HTTP status code for unauthorized access
+  }
+};
 
 function formatYieldAsRange(value, rangePercentage = 1) {
   // Calculate the range values
@@ -674,5 +692,6 @@ module.exports = {
   stopYieldCalc,
   restartYieldCalc,
   getYields,
-  updateOracle
+  updateOracle,
+  transferTreasury
 };
