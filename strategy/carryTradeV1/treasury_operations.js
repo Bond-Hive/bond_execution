@@ -124,6 +124,9 @@ async function checkTreasury(contractAddress = null) {
 // checkTreasury("CA5BMOP5GYY5W64RRKZT6Q4RVAFUFBZBWQ3FMQATREOZQP7XVDEXT222");// Processes all strategies
 // checkTreasury();// Processes all strategies
 
+setInterval(() => {
+  checkTreasury();
+}, 1000 * 60 * 1); // Set timeout duration here, e.g.,2 mins
 
 module.exports = {
   checkTreasury
