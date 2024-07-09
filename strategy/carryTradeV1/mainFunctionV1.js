@@ -14,7 +14,7 @@ const mainFunction = async () => {
     if (response.e =="outboundAccountPosition"){ // need to change this to balanceUpdate on main, testing done with 'outboundAccountPosition'
       let depositResults = await getBinanceDeposits('binance','Test','USDC',getUnixTimestampForLastDay());
       for (let deposit in depositResults){
-        if (depositResults[deposit].network == 'XLM' && depositResults[deposit].currency == 'USDC'){ // need to change this to USDT on main testing
+        if (depositResults[deposit].network == 'XLM' && depositResults[deposit].currency == 'USDT'){ // need to change this to USDT on main testing
           if (!(await checkExecutedTransaction(depositResults[deposit].txid))){
             // let senderAddress = await getTransactionDetails(depositResults[deposit].txid); // need to change to Stellar
             let executedLiveStrategy; let profitPercent; let amount;
