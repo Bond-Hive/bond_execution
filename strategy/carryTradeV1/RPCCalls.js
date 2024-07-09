@@ -322,9 +322,36 @@ function logAllProperties(obj) {
 // });
 
 // changeTrust({
+//   secretKey: process.env.STELLAR_PUB_BTC_SEP24_TREASURY,
+//   rpcServerUrl: process.env.QUICKNODE_API_STELLAR_PUBNET,
+//   destinationId: "GBWKTYBKK622T42SWBQ3AOMYFQF2REXFBIEZLVCD63USJ37ONWJB7GIF", //BTC_Dec24 Treasury Public Address
+//   assetCode: "USDC",
+//   assetIssuer: "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
+//   network:"publicnet" 
+// });
+
+// changeTrust({
 //   secretKey: process.env.STELLAR_PUB_BTC_DEC24_TREASURY,
 //   rpcServerUrl: process.env.QUICKNODE_API_STELLAR_PUBNET,
-//   destinationId: "GAPBH4OCBYMVRAHLJIBVVCI3JHK2BV5W5A7R57Y4X4NL6M6F35TD2WBR", //BTC_Dec24 Treasury Public Address
+//   destinationId: "GCLDOU2AAMNRBLWVWQBOQOBDFMPJDON6XSWBDEPHEFKL7YTYKBJHRWQF", //BTC_Dec24 Treasury Public Address
+//   assetCode: "USDC",
+//   assetIssuer: "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
+//   network:"publicnet" 
+// });
+
+// changeTrust({
+//   secretKey: process.env.STELLAR_PUB_ETH_SEP24_TREASURY,
+//   rpcServerUrl: process.env.QUICKNODE_API_STELLAR_PUBNET,
+//   destinationId: "GCIYCFKRO6NMH6DSW6V75763G5QKBSXSCTWZYOFIPLN36VOJ6635PYO4", //BTC_Dec24 Treasury Public Address
+//   assetCode: "USDC",
+//   assetIssuer: "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
+//   network:"publicnet" 
+// });
+
+// changeTrust({
+//   secretKey: process.env.STELLAR_PUB_ETH_DEC24_TREASURY,
+//   rpcServerUrl: process.env.QUICKNODE_API_STELLAR_PUBNET,
+//   destinationId: "GBU5HD2U7MITGWK7RK356QNGUIYZTKDIPRGZ32USIFQCKJULUFSA4XI5", //BTC_Dec24 Treasury Public Address
 //   assetCode: "USDC",
 //   assetIssuer: "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
 //   network:"publicnet" 

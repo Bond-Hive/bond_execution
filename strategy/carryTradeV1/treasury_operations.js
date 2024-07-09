@@ -75,7 +75,7 @@ async function checkTreasury(contractAddress = null) {
 
     if (unrecordedEvents.length > 0) {
       // Get the strategy name or use the function to retrieve it if not present
-      let strategyName = strategy.name ? strategy.name : (await getStrategyName(strategy.contractAddress));
+      let strategyName = strategy.name ? strategy.name.toUpperCase() : (await getStrategyName(strategy.contractAddress)).toUpperCase();
     
       // Construct the name of the environment variable dynamically
       let envVarName = `STELLAR_PUB_${strategyName}_TREASURY`;
