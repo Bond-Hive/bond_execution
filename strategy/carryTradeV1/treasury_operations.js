@@ -7,6 +7,11 @@ const { fetchEvents,
   changeTrust 
 } = require('./RPCCalls');
 
+// Sleep function
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 async function checkTreasury(contractAddress = null) {
   const secondsPerDay = 24 * 60 * 60;
   const currentLedger = await getCurrentLedger();
