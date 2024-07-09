@@ -109,7 +109,7 @@ async function checkTreasury(contractAddress = null) {
         console.error("Error retrieving USDC balance:", error);
       }
     }
-    
+    await sleep(3000); // Sleep for 3 sec before processing the next strategy
   }
   console.log("transfers processed");
   return "transfers processed";
