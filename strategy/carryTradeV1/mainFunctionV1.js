@@ -6,6 +6,7 @@ const { dbMongoose } = require('@civfund/fund-libraries');
 const { averageYieldsGlobal,webSocketConnections,averageYieldsPostExecutionGlobal, averageDiscountFactorPostExecutionGlobal } = require('./yieldDisplay'); // Adjust the path as necessary
 const { executeOracleDiscountFactor, invokeFunction } = require('./oracle_discountFactor'); // Adjust the path as necessary
 const treasury_functions = require('./treasury_operations');
+const executionTracker = {};
 
 
 const mainFunction = async () => {
@@ -233,7 +234,7 @@ const oracleFunction = async (contractAddress, secretKey) => {
     }
 
     // Extract the contract address and determine the RPC server URL
-    let network = liveStrategiesObj[toSearch].oracleNetwork
+    let network = liveStrategiesObj[toSearch].oracleNetwork;
     let rpcServerUrl = network === "testnet"
       ? "https://soroban-testnet.stellar.org:443"
       : liveStrategiesObj[toSearch].rpcurl; // Modify this line if you have URLs for other networks
@@ -244,32 +245,50 @@ const oracleFunction = async (contractAddress, secretKey) => {
     let operationValueType = "i128";
     secretKey = secretKey || (network === "testnet" ? process.env.STELLAR_TEST_KIYF : process.env.STELLAR_PUB_ORACLE_DEPLOYER);
 
-    // Invoke function to get the quote value asynchronously
-    invokeFunction({
-      secretKey,
-      rpcServerUrl,
-      contractAddress,
-      operationName: "quote",
-      network
-    }).then(quote_value => {
-      console.log("quote_value: ", quote_value);
+    const invokeAndExecute = () => {
+      invokeFunction({
+        secretKey,
+        rpcServerUrl,
+        contractAddress,
+        operationName: "quote",
+        network
+      }).then(quote_value => {
+        console.log("quote_value: ", quote_value);
 
-      if (quote_value === BigInt(0)) {
-        console.log("quote_value is zero, updating value");
-        // Execute the operation to set the quote value
-        executeOracleDiscountFactor({
-          secretKey,
-          rpcServerUrl,
-          contractAddress,
-          operationName: "set_quote",
-          operationValue,
-          operationValueType,
-          network
-        });
-      }
-    }).catch(error => {
-      console.error("Error invoking function to get quote value:", error);
-    });
+        if (quote_value === BigInt(0)) {
+          console.log("quote_value is zero, updating value");
+          // Execute the operation to set the quote value
+          executeOracleDiscountFactor({
+            secretKey,
+            rpcServerUrl,
+            contractAddress,
+            operationName: "set_quote",
+            operationValue,
+            operationValueType,
+            network
+          });
+        }
+      }).catch(error => {
+        console.error("Error invoking function to get quote value:", error);
+      }).finally(() => {
+        executionTracker[contractAddress].lastExecutionTime = Date.now();
+      });
+    };
+
+    if (!executionTracker[contractAddress]) {
+      executionTracker[contractAddress] = {
+        lastExecutionTime: 0
+      };
+    }
+
+    const currentTime = Date.now();
+    const { lastExecutionTime } = executionTracker[contractAddress];
+
+    if (currentTime - lastExecutionTime > 280 * 1000) {
+      // If more than 280 seconds have passed since the last execution, reset the timer and execute
+      executionTracker[contractAddress].lastExecutionTime = currentTime;
+      invokeAndExecute();
+    }
 
     // Return immediately with the operation value as a string
     return { quote: operationValue.toString() };
