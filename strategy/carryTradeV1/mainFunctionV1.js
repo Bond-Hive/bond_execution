@@ -236,7 +236,7 @@ const oracleFunction = async (contractAddress, secretKey) => {
     let network = liveStrategiesObj[toSearch].oracleNetwork
     let rpcServerUrl = network === "testnet"
       ? "https://soroban-testnet.stellar.org:443"
-      : process.env.QUICKNODE_API_STELLAR_PUBNET; // Modify this line if you have URLs for other networks
+      : liveStrategiesObj[toSearch].rpcurl; // Modify this line if you have URLs for other networks
 
     // Assume averageDiscountFactorPostExecutionGlobal is available globally
     operationValue = Math.round(Number(averageDiscountFactorPostExecutionGlobal[liveStrategiesObj[toSearch].symbolFuture] / 100) * Math.pow(10, 7));
