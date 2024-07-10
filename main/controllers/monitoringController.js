@@ -9,6 +9,53 @@ const deltaHedge = require('../../strategy/carryTradeV1/deltaHedge');
 const mainFunction =  require('../../strategy/carryTradeV1/mainFunctionV1');
 const treasuryOperations =  require('../../strategy/carryTradeV1/treasury_operations');
 
+const WebSocket = require('ws');
+
+// Create a WebSocket server
+const wss = new WebSocket.Server({ port: 9080 });
+
+// Broadcast to all clients
+function broadcast(data) {
+  wss.clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(data);
+    }
+  });
+}
+
+// Setup WebSocket connection listener
+wss.on('connection', ws => {
+  console.log('Client connected');
+  ws.on('message', message => {
+    console.log('Received: %s', message);
+  });
+  ws.on('close', () => {
+    console.log('Client disconnected');
+  });
+});
+
+// Function to fetch and send yields
+function updateYields() {
+  try {
+    let formattedData = [];
+    Object.keys(averageYieldsPostExecutionGlobal).forEach(symbolFuture => {
+      const averageYieldPostExecution = averageYieldsPostExecutionGlobal[symbolFuture];
+      formattedData.push({
+        symbolFuture,
+        averageYieldPostExecution: formatYieldAsRange(averageYieldPostExecution)
+      });
+    });
+    const data = JSON.stringify(formattedData);
+    broadcast(data);
+  } catch (e) {
+    console.error('Error updating yields:', e);
+  }
+}
+
+// Send yields every second
+setInterval(updateYields, 1000);
+
+
 const { averageYieldsPostExecutionGlobal } = require('../../strategy/carryTradeV1/yieldDisplay'); // Adjust the path as necessary
 
 const getData = async (strategyName) => {
