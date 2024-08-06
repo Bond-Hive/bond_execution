@@ -1,5 +1,5 @@
 'use strict';
-const civfund = require('@civfund/fund-libraries');
+const execution = require('../../main/services/execution-libraries/index');
 const {
   webSocketBinance
 } = require('../../main/services/libraries/Websocket');
@@ -168,8 +168,8 @@ const executeSpotOrderWithWebsocket = async function(
   orderType,
   clientOrderId
   ){
-  let cex = await civfund.initializeCcxt(exchange,subaccount);
-  civfund.ccxt.ccxtCreateOrderWithNomenclature(
+  let cex = await execution.initializeCcxt(exchange,subaccount);
+  execution.ccxt.ccxtCreateOrderWithNomenclature(
     cex,
     exchange,
     pair,
@@ -196,7 +196,7 @@ const executeFuturesOrderWithWebsocket = function(
   clientOrderId
   ){
 
-  let priceMonitor = new civfund.PriceMonitor(
+  let priceMonitor = new execution.PriceMonitor(
     'last',
     pair,
     null,

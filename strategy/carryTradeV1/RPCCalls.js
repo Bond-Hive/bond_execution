@@ -1,4 +1,5 @@
-const web3 = require("@solana/web3.js");
+const baseUrl = process.env.QUICKNODE_API_STELLAR_PUBNET;
+
 const {
   Keypair,
   SorobanRpc,
@@ -15,7 +16,7 @@ function decodeBase64(base64String) {
 
 // Function to fetch events
 async function fetchEvents(contractAddress, startLedger) {
-  const url = 'https://weathered-ultra-general.stellar-mainnet.quiknode.pro/59baa2ce47397302d2c57e2b1385f38c311dffe6/';
+  const url = `${baseUrl}`;
   const data = {
     "jsonrpc": "2.0",
     "id": 8675309,
@@ -64,7 +65,7 @@ async function fetchEvents(contractAddress, startLedger) {
 }
 
 async function getCurrentLedger() {
-  const url = 'https://weathered-ultra-general.stellar-mainnet.quiknode.pro/59baa2ce47397302d2c57e2b1385f38c311dffe6/';
+  const url = `${baseUrl}`;
   const data = {
     "jsonrpc": "2.0",
     "id": 8675309,
@@ -92,10 +93,10 @@ async function getCurrentLedger() {
 }
 
 async function retrieveAccountAndFilterBalance(accountId, assetCode="USDC") { 
-  const url = `https://weathered-ultra-general.stellar-mainnet.quiknode.pro/59baa2ce47397302d2c57e2b1385f38c311dffe6/accounts/${accountId}`;
+  const urlWithAccountId = `${baseUrl}/accounts/${accountId}`;
 
   try {
-    const response = await axios.get(url, {
+    const response = await axios.get(urlWithAccountId, {
       headers: {
         'Accept': 'application/json'
       }
@@ -132,10 +133,10 @@ async function retrieveAccountAndFilterBalanceFromSecret(secretKey, assetCode="U
   const sourceKeypair = Keypair.fromSecret(secretKey);
   const sourceAccount = await server.getAccount(sourceKeypair.publicKey());
   const accountId = sourceAccount.accountId(); // If accountId is a method
-  const url = `https://weathered-ultra-general.stellar-mainnet.quiknode.pro/59baa2ce47397302d2c57e2b1385f38c311dffe6/accounts/${accountId}`;
+  const urlWithAccountId = `${baseUrl}/accounts/${accountId}`;
 
   try {
-    const response = await axios.get(url, {
+    const response = await axios.get(urlWithAccountId, {
       headers: {
         'Accept': 'application/json'
       }

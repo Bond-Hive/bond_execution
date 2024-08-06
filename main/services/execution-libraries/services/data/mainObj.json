@@ -1,0 +1,1451 @@
+{
+	"66900": {
+		"price": "804.053269",
+		"buyPrice": "803.6513632172006",
+		"sellPrice": "804.4553763199862",
+		"quantity": "0.006123259",
+		"percentagePosition": "0",
+		"grid": "66900",
+		"tradesCounter": "0"
+	},
+	"67000": {
+		"price": "812.133733",
+		"buyPrice": "811.7277878580121",
+		"sellPrice": "812.5398810207989",
+		"quantity": "0.006092721",
+		"percentagePosition": "0",
+		"grid": "67000",
+		"tradesCounter": "0"
+	},
+	"67100": {
+		"price": "820.295403",
+		"buyPrice": "819.8853778373825",
+		"sellPrice": "820.7056322620433",
+		"quantity": "0.006062335",
+		"percentagePosition": "0",
+		"grid": "67100",
+		"tradesCounter": "0"
+	},
+	"67200": {
+		"price": "828.539094",
+		"buyPrice": "828.1249488395376",
+		"sellPrice": "828.9534465439965",
+		"quantity": "0.006032100",
+		"percentagePosition": "0",
+		"grid": "67200",
+		"tradesCounter": "0"
+	},
+	"67300": {
+		"price": "836.865632",
+		"buyPrice": "836.4473247460548",
+		"sellPrice": "837.2841485724881",
+		"quantity": "0.006002017",
+		"percentagePosition": "0",
+		"grid": "67300",
+		"tradesCounter": "0"
+	},
+	"67400": {
+		"price": "845.275849",
+		"buyPrice": "844.8533377182423",
+		"sellPrice": "845.6985713413626",
+		"quantity": "0.005972083",
+		"percentagePosition": "0",
+		"grid": "67400",
+		"tradesCounter": "0"
+	},
+	"67500": {
+		"price": "853.770586",
+		"buyPrice": "853.3438282803486",
+		"sellPrice": "854.1975562157708",
+		"quantity": "0.005942299",
+		"percentagePosition": "0",
+		"grid": "67500",
+		"tradesCounter": "0"
+	},
+	"67600": {
+		"price": "862.350691",
+		"buyPrice": "861.9196454036069",
+		"sellPrice": "862.7819530162993",
+		"quantity": "0.005912662",
+		"percentagePosition": "0",
+		"grid": "67600",
+		"tradesCounter": "0"
+	},
+	"67700": {
+		"price": "871.017024",
+		"buyPrice": "870.5816465911241",
+		"sellPrice": "871.4526201039442",
+		"quantity": "0.005883174",
+		"percentagePosition": "0",
+		"grid": "67700",
+		"tradesCounter": "0"
+	},
+	"67800": {
+		"price": "879.770451",
+		"buyPrice": "879.3306979636241",
+		"sellPrice": "880.2104244659398",
+		"quantity": "0.005853834",
+		"percentagePosition": "0",
+		"grid": "67800",
+		"tradesCounter": "0"
+	},
+	"67900": {
+		"price": "888.611847",
+		"buyPrice": "888.1676743460508",
+		"sellPrice": "889.056241802449",
+		"quantity": "0.005824639",
+		"percentagePosition": "0",
+		"grid": "67900",
+		"tradesCounter": "0"
+	},
+	"68000": {
+		"price": "897.542096",
+		"buyPrice": "897.0934593550437",
+		"sellPrice": "897.9909566141254",
+		"quantity": "0.005795590",
+		"percentagePosition": "0",
+		"grid": "68000",
+		"tradesCounter": "0"
+	},
+	"68100": {
+		"price": "906.562091",
+		"buyPrice": "906.1089454872906",
+		"sellPrice": "907.0154622905553",
+		"quantity": "0.005766686",
+		"percentagePosition": "0",
+		"grid": "68100",
+		"tradesCounter": "0"
+	},
+	"68200": {
+		"price": "915.672733",
+		"buyPrice": "915.2150342087696",
+		"sellPrice": "916.1306611995886",
+		"quantity": "0.005737925",
+		"percentagePosition": "0",
+		"grid": "68200",
+		"tradesCounter": "0"
+	},
+	"68300": {
+		"price": "924.874935",
+		"buyPrice": "924.4126360448871",
+		"sellPrice": "925.3374647775671",
+		"quantity": "0.005709309",
+		"percentagePosition": "0",
+		"grid": "68300",
+		"tradesCounter": "0"
+	},
+	"68400": {
+		"price": "934.169615",
+		"buyPrice": "933.7026706715226",
+		"sellPrice": "934.6367936204597",
+		"quantity": "0.005680835",
+		"percentagePosition": "0",
+		"grid": "68400",
+		"tradesCounter": "0"
+	},
+	"68500": {
+		"price": "943.557704",
+		"buyPrice": "943.0860670069867",
+		"sellPrice": "944.0295775759139",
+		"quantity": "0.005652503",
+		"percentagePosition": "0",
+		"grid": "68500",
+		"tradesCounter": "0"
+	},
+	"68600": {
+		"price": "953.040140",
+		"buyPrice": "952.5637633049058",
+		"sellPrice": "953.5167558362317",
+		"quantity": "0.005624313",
+		"percentagePosition": "0",
+		"grid": "68600",
+		"tradesCounter": "0"
+	},
+	"68700": {
+		"price": "962.617872",
+		"buyPrice": "962.136707248038",
+		"sellPrice": "963.0992770322807",
+		"quantity": "0.005596263",
+		"percentagePosition": "0",
+		"grid": "68700",
+		"tradesCounter": "0"
+	},
+	"68800": {
+		"price": "972.291856",
+		"buyPrice": "971.8058560430326",
+		"sellPrice": "972.7780993283478",
+		"quantity": "0.005568352",
+		"percentagePosition": "0",
+		"grid": "68800",
+		"tradesCounter": "0"
+	},
+	"68900": {
+		"price": "982.063061",
+		"buyPrice": "981.5721765161426",
+		"sellPrice": "982.5541905179473",
+		"quantity": "0.005540582",
+		"percentagePosition": "0",
+		"grid": "68900",
+		"tradesCounter": "0"
+	},
+	"69000": {
+		"price": "991.932463",
+		"buyPrice": "991.4366452098981",
+		"sellPrice": "992.4285281205914",
+		"quantity": "0.005512949",
+		"percentagePosition": "0",
+		"grid": "69000",
+		"tradesCounter": "0"
+	},
+	"69100": {
+		"price": "1001.901049",
+		"buyPrice": "1001.4002484807517",
+		"sellPrice": "1002.4020994795331",
+		"quantity": "0.005485455",
+		"percentagePosition": "0",
+		"grid": "69100",
+		"tradesCounter": "0"
+	},
+	"69200": {
+		"price": "1011.969816",
+		"buyPrice": "1011.4639825977047",
+		"sellPrice": "1012.4759018604914",
+		"quantity": "0.005458097",
+		"percentagePosition": "0",
+		"grid": "69200",
+		"tradesCounter": "0"
+	},
+	"69300": {
+		"price": "1022.139770",
+		"buyPrice": "1021.6288538419257",
+		"sellPrice": "1022.6509425513686",
+		"quantity": "0.005430876",
+		"percentagePosition": "0",
+		"grid": "69300",
+		"tradesCounter": "0"
+	},
+	"69400": {
+		"price": "1032.411930",
+		"buyPrice": "1031.8958786073688",
+		"sellPrice": "1032.9282389629705",
+		"quantity": "0.005403791",
+		"percentagePosition": "0",
+		"grid": "69400",
+		"tradesCounter": "0"
+	},
+	"69500": {
+		"price": "1042.787321",
+		"buyPrice": "1042.2660835024035",
+		"sellPrice": "1043.3088187307374",
+		"quantity": "0.005376841",
+		"percentagePosition": "0",
+		"grid": "69500",
+		"tradesCounter": "0"
+	},
+	"69600": {
+		"price": "1053.266981",
+		"buyPrice": "1052.7405054524675",
+		"sellPrice": "1053.7937198174982",
+		"quantity": "0.005350025",
+		"percentagePosition": "0",
+		"grid": "69600",
+		"tradesCounter": "0"
+	},
+	"69700": {
+		"price": "1063.851958",
+		"buyPrice": "1063.3201918037478",
+		"sellPrice": "1064.3839906172584",
+		"quantity": "0.005323343",
+		"percentagePosition": "0",
+		"grid": "69700",
+		"tradesCounter": "0"
+	},
+	"69800": {
+		"price": "1074.543311",
+		"buyPrice": "1074.0062004279068",
+		"sellPrice": "1075.0806900600282",
+		"quantity": "0.005296794",
+		"percentagePosition": "0",
+		"grid": "69800",
+		"tradesCounter": "0"
+	},
+	"69900": {
+		"price": "1085.342108",
+		"buyPrice": "1084.7995998278604",
+		"sellPrice": "1085.8848877177068",
+		"quantity": "0.005270377",
+		"percentagePosition": "0",
+		"grid": "69900",
+		"tradesCounter": "0"
+	},
+	"70000": {
+		"price": "1096.249430",
+		"buyPrice": "1095.7014692446169",
+		"sellPrice": "1096.7976639110298",
+		"quantity": "0.005244093",
+		"percentagePosition": "0",
+		"grid": "70000",
+		"tradesCounter": "0"
+	},
+	"70100": {
+		"price": "1107.266366",
+		"buyPrice": "1106.7128987651924",
+		"sellPrice": "1107.8201098175907",
+		"quantity": "0.005217939",
+		"percentagePosition": "0",
+		"grid": "70100",
+		"tradesCounter": "0"
+	},
+	"70200": {
+		"price": "1118.394019",
+		"buyPrice": "1117.8349894316093",
+		"sellPrice": "1118.9533275809497",
+		"quantity": "0.005191916",
+		"percentagePosition": "0",
+		"grid": "70200",
+		"tradesCounter": "0"
+	},
+	"70300": {
+		"price": "1129.633501",
+		"buyPrice": "1129.06885335099",
+		"sellPrice": "1130.1984304208368",
+		"quantity": "0.005166022",
+		"percentagePosition": "0",
+		"grid": "70300",
+		"tradesCounter": "0"
+	},
+	"70400": {
+		"price": "1140.985936",
+		"buyPrice": "1140.4156138067578",
+		"sellPrice": "1141.5565427444644",
+		"quantity": "0.005140258",
+		"percentagePosition": "0",
+		"grid": "70400",
+		"tradesCounter": "0"
+	},
+	"70500": {
+		"price": "1152.452459",
+		"buyPrice": "1151.876405370955",
+		"sellPrice": "1153.0288002589575",
+		"quantity": "0.005114622",
+		"percentagePosition": "0",
+		"grid": "70500",
+		"tradesCounter": "0"
+	},
+	"70600": {
+		"price": "1164.034217",
+		"buyPrice": "1163.452374017689",
+		"sellPrice": "1164.6163500849136",
+		"quantity": "0.005089114",
+		"percentagePosition": "0",
+		"grid": "70600",
+		"tradesCounter": "0"
+	},
+	"70700": {
+		"price": "1175.732367",
+		"buyPrice": "1175.1446772377205",
+		"sellPrice": "1176.320350871105",
+		"quantity": "0.005063733",
+		"percentagePosition": "0",
+		"grid": "70700",
+		"tradesCounter": "0"
+	},
+	"70800": {
+		"price": "1187.548080",
+		"buyPrice": "1186.9544841542008",
+		"sellPrice": "1188.1419729103322",
+		"quantity": "0.005038479",
+		"percentagePosition": "0",
+		"grid": "70800",
+		"tradesCounter": "0"
+	},
+	"70900": {
+		"price": "1199.482537",
+		"buyPrice": "1198.882975639574",
+		"sellPrice": "1200.0823982564434",
+		"quantity": "0.005013351",
+		"percentagePosition": "0",
+		"grid": "70900",
+		"tradesCounter": "0"
+	},
+	"71000": {
+		"price": "1211.536931",
+		"buyPrice": "1210.9313444336526",
+		"sellPrice": "1212.1428208425284",
+		"quantity": "0.004988348",
+		"percentagePosition": "-1",
+		"grid": "71000",
+		"tradesCounter": "1"
+	},
+	"71100": {
+		"price": "1223.712468",
+		"buyPrice": "1223.1007952628822",
+		"sellPrice": "1224.3244466003007",
+		"quantity": "0.004963470",
+		"percentagePosition": "-1",
+		"grid": "71100",
+		"tradesCounter": "0"
+	},
+	"71200": {
+		"price": "1236.010365",
+		"buyPrice": "1235.3925449608014",
+		"sellPrice": "1236.6284935806802",
+		"quantity": "0.004938715",
+		"percentagePosition": "-1",
+		"grid": "71200",
+		"tradesCounter": "0"
+	},
+	"71300": {
+		"price": "1248.431851",
+		"buyPrice": "1247.807822589715",
+		"sellPrice": "1249.056192075588",
+		"quantity": "0.004914084",
+		"percentagePosition": "-1",
+		"grid": "71300",
+		"tradesCounter": "0"
+	},
+	"71400": {
+		"price": "1260.978170",
+		"buyPrice": "1260.3478695635881",
+		"sellPrice": "1261.6087847409613",
+		"quantity": "0.004889577",
+		"percentagePosition": "-1",
+		"grid": "71400",
+		"tradesCounter": "0"
+	},
+	"71500": {
+		"price": "1273.650574",
+		"buyPrice": "1273.0139397721778",
+		"sellPrice": "1274.287526721011",
+		"quantity": "0.004865191",
+		"percentagePosition": "-1",
+		"grid": "71500",
+		"tradesCounter": "0"
+	},
+	"71600": {
+		"price": "1286.450332",
+		"buyPrice": "1285.8072997064082",
+		"sellPrice": "1287.0936857737233",
+		"quantity": "0.004840927",
+		"percentagePosition": "-1",
+		"grid": "71600",
+		"tradesCounter": "0"
+	},
+	"71700": {
+		"price": "1299.378723",
+		"buyPrice": "1298.7292285850103",
+		"sellPrice": "1300.028542397623",
+		"quantity": "0.004816784",
+		"percentagePosition": "-1",
+		"grid": "71700",
+		"tradesCounter": "0"
+	},
+	"71800": {
+		"price": "1312.437040",
+		"buyPrice": "1311.7810184824305",
+		"sellPrice": "1313.0933899598124",
+		"quantity": "0.004792761",
+		"percentagePosition": "-1",
+		"grid": "71800",
+		"tradesCounter": "0"
+	},
+	"71900": {
+		"price": "1325.626589",
+		"buyPrice": "1324.9639744580268",
+		"sellPrice": "1326.2895348252969",
+		"quantity": "0.004768859",
+		"percentagePosition": "-1",
+		"grid": "71900",
+		"tradesCounter": "0"
+	},
+	"72000": {
+		"price": "1338.948688",
+		"buyPrice": "1338.2794146865633",
+		"sellPrice": "1339.618296487608",
+		"quantity": "0.004745075",
+		"percentagePosition": "-1",
+		"grid": "72000",
+		"tradesCounter": "0"
+	},
+	"72100": {
+		"price": "1352.404670",
+		"buyPrice": "1351.7286705900144",
+		"sellPrice": "1353.0810077007418",
+		"quantity": "0.004721410",
+		"percentagePosition": "-1",
+		"grid": "72100",
+		"tradesCounter": "0"
+	},
+	"72200": {
+		"price": "1365.995880",
+		"buyPrice": "1365.3130869706958",
+		"sellPrice": "1366.6790146124217",
+		"quantity": "0.004697863",
+		"percentagePosition": "-1",
+		"grid": "72200",
+		"tradesCounter": "0"
+	},
+	"72300": {
+		"price": "1379.723677",
+		"buyPrice": "1379.034022145732",
+		"sellPrice": "1380.4136768987005",
+		"quantity": "0.004674434",
+		"percentagePosition": "-1",
+		"grid": "72300",
+		"tradesCounter": "0"
+	},
+	"72400": {
+		"price": "1393.589434",
+		"buyPrice": "1392.8928480828754",
+		"sellPrice": "1394.2863678999163",
+		"quantity": "0.004651121",
+		"percentagePosition": "-1",
+		"grid": "72400",
+		"tradesCounter": "0"
+	},
+	"72500": {
+		"price": "1407.594537",
+		"buyPrice": "1406.8909505376914",
+		"sellPrice": "1408.298474758013",
+		"quantity": "0.004627924",
+		"percentagePosition": "-1",
+		"grid": "72500",
+		"tradesCounter": "0"
+	},
+	"72600": {
+		"price": "1421.740386",
+		"buyPrice": "1421.0297291921195",
+		"sellPrice": "1422.451398555243",
+		"quantity": "0.004604844",
+		"percentagePosition": "-1",
+		"grid": "72600",
+		"tradesCounter": "0"
+	},
+	"72700": {
+		"price": "1436.028397",
+		"buyPrice": "1435.3105977944306",
+		"sellPrice": "1436.7465544542613",
+		"quantity": "0.004581878",
+		"percentagePosition": "-1",
+		"grid": "72700",
+		"tradesCounter": "0"
+	},
+	"72800": {
+		"price": "1450.459997",
+		"buyPrice": "1449.7349843005877",
+		"sellPrice": "1451.1853718396296",
+		"quantity": "0.004559027",
+		"percentagePosition": "-1",
+		"grid": "72800",
+		"tradesCounter": "0"
+	},
+	"72900": {
+		"price": "1465.036630",
+		"buyPrice": "1464.3043310170287",
+		"sellPrice": "1465.769294460742",
+		"quantity": "0.004536290",
+		"percentagePosition": "-1",
+		"grid": "72900",
+		"tradesCounter": "0"
+	},
+	"73000": {
+		"price": "1479.759753",
+		"buyPrice": "1479.0200947448839",
+		"sellPrice": "1480.4997805761848",
+		"quantity": "0.004513666",
+		"percentagePosition": "-1",
+		"grid": "73000",
+		"tradesCounter": "0"
+	},
+	"73100": {
+		"price": "1494.630838",
+		"buyPrice": "1493.8837469256428",
+		"sellPrice": "1495.3783030995517",
+		"quantity": "0.004491155",
+		"percentagePosition": "-1",
+		"grid": "73100",
+		"tradesCounter": "0"
+	},
+	"73200": {
+		"price": "1509.651373",
+		"buyPrice": "1508.896773788284",
+		"sellPrice": "1510.4063497467196",
+		"quantity": "0.004468757",
+		"percentagePosition": "-1",
+		"grid": "73200",
+		"tradesCounter": "0"
+	},
+	"73300": {
+		"price": "1524.822859",
+		"buyPrice": "1524.0606764978863",
+		"sellPrice": "1525.5854231846079",
+		"quantity": "0.004446470",
+		"percentagePosition": "-1",
+		"grid": "73300",
+		"tradesCounter": "0"
+	},
+	"73400": {
+		"price": "1540.146814",
+		"buyPrice": "1539.376971305729",
+		"sellPrice": "1540.9170411814293",
+		"quantity": "0.004424294",
+		"percentagePosition": "-1",
+		"grid": "73400",
+		"tradesCounter": "0"
+	},
+	"73500": {
+		"price": "1555.624769",
+		"buyPrice": "1554.8471897009058",
+		"sellPrice": "1556.4027367584563",
+		"quantity": "0.004402229",
+		"percentagePosition": "-1",
+		"grid": "73500",
+		"tradesCounter": "0"
+	},
+	"73600": {
+		"price": "1571.258272",
+		"buyPrice": "1570.472878563457",
+		"sellPrice": "1572.0440583433053",
+		"quantity": "0.004380274",
+		"percentagePosition": "-1",
+		"grid": "73600",
+		"tradesCounter": "0"
+	},
+	"73700": {
+		"price": "1587.048887",
+		"buyPrice": "1586.255600319045",
+		"sellPrice": "1587.8425699247682",
+		"quantity": "0.004358428",
+		"percentagePosition": "-1",
+		"grid": "73700",
+		"tradesCounter": "0"
+	},
+	"73800": {
+		"price": "1602.998192",
+		"buyPrice": "1602.1969330951829",
+		"sellPrice": "1603.799851209195",
+		"quantity": "0.004336692",
+		"percentagePosition": "-1",
+		"grid": "73800",
+		"tradesCounter": "0"
+	},
+	"73900": {
+		"price": "1619.107782",
+		"buyPrice": "1618.2984708790307",
+		"sellPrice": "1619.9174977784514",
+		"quantity": "0.004315063",
+		"percentagePosition": "-1",
+		"grid": "73900",
+		"tradesCounter": "0"
+	},
+	"74000": {
+		"price": "1635.379268",
+		"buyPrice": "1634.561823676782",
+		"sellPrice": "1636.1971212494611",
+		"quantity": "0.004293543",
+		"percentagePosition": "-1",
+		"grid": "74000",
+		"tradesCounter": "0"
+	},
+	"74100": {
+		"price": "1651.814277",
+		"buyPrice": "1650.9886176746481",
+		"sellPrice": "1652.6403494353538",
+		"quantity": "0.004272130",
+		"percentagePosition": "-1",
+		"grid": "74100",
+		"tradesCounter": "0"
+	},
+	"74200": {
+		"price": "1668.414452",
+		"buyPrice": "1667.5804954014618",
+		"sellPrice": "1669.2488265082306",
+		"quantity": "0.004250823",
+		"percentagePosition": "-1",
+		"grid": "74200",
+		"tradesCounter": "0"
+	},
+	"74300": {
+		"price": "1685.181454",
+		"buyPrice": "1684.3391158929162",
+		"sellPrice": "1686.0242131635673",
+		"quantity": "0.004229624",
+		"percentagePosition": "-1",
+		"grid": "74300",
+		"tradesCounter": "0"
+	},
+	"74400": {
+		"price": "1702.116958",
+		"buyPrice": "1701.2661548574526",
+		"sellPrice": "1702.9681867862673",
+		"quantity": "0.004208529",
+		"percentagePosition": "-1",
+		"grid": "74400",
+		"tradesCounter": "0"
+	},
+	"74500": {
+		"price": "1719.222658",
+		"buyPrice": "1718.3633048438155",
+		"sellPrice": "1720.0824416183862",
+		"quantity": "0.004187540",
+		"percentagePosition": "-1",
+		"grid": "74500",
+		"tradesCounter": "0"
+	},
+	"74600": {
+		"price": "1736.500265",
+		"buyPrice": "1735.6322754102928",
+		"sellPrice": "1737.368688928539",
+		"quantity": "0.004166656",
+		"percentagePosition": "-1",
+		"grid": "74600",
+		"tradesCounter": "0"
+	},
+	"74700": {
+		"price": "1753.951506",
+		"buyPrice": "1753.0747932956547",
+		"sellPrice": "1754.828657183013",
+		"quantity": "0.004145876",
+		"percentagePosition": "-1",
+		"grid": "74700",
+		"tradesCounter": "0"
+	},
+	"74800": {
+		"price": "1771.578126",
+		"buyPrice": "1770.6926025918135",
+		"sellPrice": "1772.4640922185965",
+		"quantity": "0.004125199",
+		"percentagePosition": "-1",
+		"grid": "74800",
+		"tradesCounter": "0"
+	},
+	"74900": {
+		"price": "1789.381888",
+		"buyPrice": "1788.4874649182154",
+		"sellPrice": "1790.2767574171487",
+		"quantity": "0.004104626",
+		"percentagePosition": "-1",
+		"grid": "74900",
+		"tradesCounter": "0"
+	},
+	"75000": {
+		"price": "1807.364571",
+		"buyPrice": "1806.461159597987",
+		"sellPrice": "1808.26843388192",
+		"quantity": "0.004084154",
+		"percentagePosition": "-1",
+		"grid": "75000",
+		"tradesCounter": "0"
+	},
+	"75100": {
+		"price": "1825.527974",
+		"buyPrice": "1824.6154838358507",
+		"sellPrice": "1826.4409206156463",
+		"quantity": "0.004063786",
+		"percentagePosition": "-1",
+		"grid": "75100",
+		"tradesCounter": "0"
+	},
+	"75200": {
+		"price": "1843.873913",
+		"buyPrice": "1842.9522528978296",
+		"sellPrice": "1844.796034700434",
+		"quantity": "0.004043518",
+		"percentagePosition": "-1",
+		"grid": "75200",
+		"tradesCounter": "0"
+	},
+	"75300": {
+		"price": "1862.404223",
+		"buyPrice": "1861.4733002927562",
+		"sellPrice": "1863.3356114794499",
+		"quantity": "0.004023352",
+		"percentagePosition": "-1",
+		"grid": "75300",
+		"tradesCounter": "0"
+	},
+	"75400": {
+		"price": "1881.120756",
+		"buyPrice": "1880.180477955608",
+		"sellPrice": "1882.0615047404397",
+		"quantity": "0.004003287",
+		"percentagePosition": "-1",
+		"grid": "75400",
+		"tradesCounter": "0"
+	},
+	"75500": {
+		"price": "1900.025384",
+		"buyPrice": "1899.075656432683",
+		"sellPrice": "1900.9755869010899",
+		"quantity": "0.003983321",
+		"percentagePosition": "-1",
+		"grid": "75500",
+		"tradesCounter": "0"
+	},
+	"75600": {
+		"price": "1919.119997",
+		"buyPrice": "1918.1607250686372",
+		"sellPrice": "1920.0797491962514",
+		"quantity": "0.003963455",
+		"percentagePosition": "-1",
+		"grid": "75600",
+		"tradesCounter": "0"
+	},
+	"75700": {
+		"price": "1938.406505",
+		"buyPrice": "1937.437592195402",
+		"sellPrice": "1939.3759018670469",
+		"quantity": "0.003943689",
+		"percentagePosition": "-1",
+		"grid": "75700",
+		"tradesCounter": "0"
+	},
+	"75800": {
+		"price": "1957.886835",
+		"buyPrice": "1956.908185323",
+		"sellPrice": "1958.8659743518763",
+		"quantity": "0.003924020",
+		"percentagePosition": "-1",
+		"grid": "75800",
+		"tradesCounter": "0"
+	},
+	"75900": {
+		"price": "1977.562936",
+		"buyPrice": "1976.5744513322782",
+		"sellPrice": "1978.5519154793437",
+		"quantity": "0.003904450",
+		"percentagePosition": "-1",
+		"grid": "75900",
+		"tradesCounter": "0"
+	},
+	"76000": {
+		"price": "1997.436776",
+		"buyPrice": "1996.4383566695783",
+		"sellPrice": "1998.4356936631227",
+		"quantity": "0.003884978",
+		"percentagePosition": "-1",
+		"grid": "76000",
+		"tradesCounter": "0"
+	},
+	"76100": {
+		"price": "2017.510340",
+		"buyPrice": "2016.5018875433632",
+		"sellPrice": "2018.5192970987782",
+		"quantity": "0.003865602",
+		"percentagePosition": "-1",
+		"grid": "76100",
+		"tradesCounter": "0"
+	},
+	"76200": {
+		"price": "2037.785637",
+		"buyPrice": "2036.7670501228195",
+		"sellPrice": "2038.8047339625696",
+		"quantity": "0.003846323",
+		"percentagePosition": "-1",
+		"grid": "76200",
+		"tradesCounter": "0"
+	},
+	"76300": {
+		"price": "2058.264694",
+		"buyPrice": "2057.2358707384565",
+		"sellPrice": "2059.294032612248",
+		"quantity": "0.003827141",
+		"percentagePosition": "-1",
+		"grid": "76300",
+		"tradesCounter": "0"
+	},
+	"76400": {
+		"price": "2078.949559",
+		"buyPrice": "2077.9103960847206",
+		"sellPrice": "2079.989241789876",
+		"quantity": "0.003808054",
+		"percentagePosition": "-1",
+		"grid": "76400",
+		"tradesCounter": "0"
+	},
+	"76500": {
+		"price": "2099.842300",
+		"buyPrice": "2098.7926934246448",
+		"sellPrice": "2100.8924308266805",
+		"quantity": "0.003789062",
+		"percentagePosition": "-1",
+		"grid": "76500",
+		"tradesCounter": "0"
+	},
+	"76600": {
+		"price": "2120.945005",
+		"buyPrice": "2119.8848507965586",
+		"sellPrice": "2122.0056898499683",
+		"quantity": "0.003770165",
+		"percentagePosition": "-1",
+		"grid": "76600",
+		"tradesCounter": "0"
+	},
+	"76700": {
+		"price": "2142.259786",
+		"buyPrice": "2141.1889772228697",
+		"sellPrice": "2143.3311299921197",
+		"quantity": "0.003751362",
+		"percentagePosition": "-1",
+		"grid": "76700",
+		"tradesCounter": "0"
+	},
+	"76800": {
+		"price": "2163.788773",
+		"buyPrice": "2162.707202920949",
+		"sellPrice": "2164.8708836016813",
+		"quantity": "0.003732653",
+		"percentagePosition": "-1",
+		"grid": "76800",
+		"tradesCounter": "0"
+	},
+	"76900": {
+		"price": "2185.534119",
+		"buyPrice": "2184.4416795161324",
+		"sellPrice": "2186.627104456583",
+		"quantity": "0.003714037",
+		"percentagePosition": "-1",
+		"grid": "76900",
+		"tradesCounter": "0"
+	},
+	"77000": {
+		"price": "2207.497998",
+		"buyPrice": "2206.394580256863",
+		"sellPrice": "2208.6019679794945",
+		"quantity": "0.003695514",
+		"percentagePosition": "-1",
+		"grid": "77000",
+		"tradesCounter": "0"
+	},
+	"77100": {
+		"price": "2229.682607",
+		"buyPrice": "2228.568100231996",
+		"sellPrice": "2230.797671455348",
+		"quantity": "0.003677084",
+		"percentagePosition": "-1",
+		"grid": "77100",
+		"tradesCounter": "0"
+	},
+	"77200": {
+		"price": "2252.090164",
+		"buyPrice": "2250.964456590289",
+		"sellPrice": "2253.2164342510478",
+		"quantity": "0.003658745",
+		"percentagePosition": "-1",
+		"grid": "77200",
+		"tradesCounter": "0"
+	},
+	"77300": {
+		"price": "2274.722909",
+		"buyPrice": "2273.585888762095",
+		"sellPrice": "2275.8604980373843",
+		"quantity": "0.003640498",
+		"percentagePosition": "-1",
+		"grid": "77300",
+		"tradesCounter": "0"
+	},
+	"77400": {
+		"price": "2297.583106",
+		"buyPrice": "2296.4346586832835",
+		"sellPrice": "2298.7321270131833",
+		"quantity": "0.003622342",
+		"percentagePosition": "-1",
+		"grid": "77400",
+		"tradesCounter": "0"
+	},
+	"77500": {
+		"price": "2320.673040",
+		"buyPrice": "2319.5130510214185",
+		"sellPrice": "2321.833608131703",
+		"quantity": "0.003604276",
+		"percentagePosition": "-1",
+		"grid": "77500",
+		"tradesCounter": "0"
+	},
+	"77600": {
+		"price": "2343.995019",
+		"buyPrice": "2342.8233734041983",
+		"sellPrice": "2345.1672513293083",
+		"quantity": "0.003586301",
+		"percentagePosition": "-1",
+		"grid": "77600",
+		"tradesCounter": "0"
+	},
+	"77700": {
+		"price": "2367.551377",
+		"buyPrice": "2366.367956650201",
+		"sellPrice": "2368.7353897564453",
+		"quantity": "0.003568415",
+		"percentagePosition": "-1",
+		"grid": "77700",
+		"tradesCounter": "0"
+	},
+	"77800": {
+		"price": "2391.344469",
+		"buyPrice": "2390.1491550019437",
+		"sellPrice": "2392.540380010933",
+		"quantity": "0.003550618",
+		"percentagePosition": "-1",
+		"grid": "77800",
+		"tradesCounter": "0"
+	},
+	"77900": {
+		"price": "2415.376672",
+		"buyPrice": "2414.169346361285",
+		"sellPrice": "2416.584602373603",
+		"quantity": "0.003532910",
+		"percentagePosition": "-1",
+		"grid": "77900",
+		"tradesCounter": "0"
+	},
+	"78000": {
+		"price": "2439.650392",
+		"buyPrice": "2438.430932527194",
+		"sellPrice": "2440.8704610463033",
+		"quantity": "0.003515291",
+		"percentagePosition": "-1",
+		"grid": "78000",
+		"tradesCounter": "0"
+	},
+	"78100": {
+		"price": "2464.168054",
+		"buyPrice": "2462.9363394359075",
+		"sellPrice": "2465.4003843922997",
+		"quantity": "0.003497759",
+		"percentagePosition": "-1",
+		"grid": "78100",
+		"tradesCounter": "0"
+	},
+	"78200": {
+		"price": "2488.932110",
+		"buyPrice": "2487.688017403502",
+		"sellPrice": "2490.1768251790877",
+		"quantity": "0.003480315",
+		"percentagePosition": "-1",
+		"grid": "78200",
+		"tradesCounter": "0"
+	},
+	"78300": {
+		"price": "2513.945037",
+		"buyPrice": "2512.688441370902",
+		"sellPrice": "2515.202260823647",
+		"quantity": "0.003462958",
+		"percentagePosition": "-1",
+		"grid": "78300",
+		"tradesCounter": "0"
+	},
+	"78400": {
+		"price": "2539.209335",
+		"buyPrice": "2537.940111151354",
+		"sellPrice": "2540.479193640161",
+		"quantity": "0.003445687",
+		"percentagePosition": "-1",
+		"grid": "78400",
+		"tradesCounter": "0"
+	},
+	"78500": {
+		"price": "2564.727531",
+		"buyPrice": "2563.4455516803796",
+		"sellPrice": "2566.0101510902255",
+		"quantity": "0.003428502",
+		"percentagePosition": "-1",
+		"grid": "78500",
+		"tradesCounter": "0"
+	},
+	"78600": {
+		"price": "2590.502176",
+		"buyPrice": "2589.207313268252",
+		"sellPrice": "2591.79768603557",
+		"quantity": "0.003411403",
+		"percentagePosition": "-1",
+		"grid": "78600",
+		"tradesCounter": "0"
+	},
+	"78700": {
+		"price": "2616.535847",
+		"buyPrice": "2615.227971855",
+		"sellPrice": "2617.844376993324",
+		"quantity": "0.003394390",
+		"percentagePosition": "-1",
+		"grid": "78700",
+		"tradesCounter": "0"
+	},
+	"78800": {
+		"price": "2642.831149",
+		"buyPrice": "2641.5101292679788",
+		"sellPrice": "2644.1528283938414",
+		"quantity": "0.003377461",
+		"percentagePosition": "-1",
+		"grid": "78800",
+		"tradesCounter": "0"
+	},
+	"78900": {
+		"price": "2669.390709",
+		"buyPrice": "2668.0564134820297",
+		"sellPrice": "2670.7256708411205",
+		"quantity": "0.003360617",
+		"percentagePosition": "-1",
+		"grid": "78900",
+		"tradesCounter": "0"
+	},
+	"79000": {
+		"price": "2696.217183",
+		"buyPrice": "2694.869478882253",
+		"sellPrice": "2697.5655613758418",
+		"quantity": "0.003343856",
+		"percentagePosition": "-1",
+		"grid": "79000",
+		"tradesCounter": "0"
+	},
+	"79100": {
+		"price": "2723.313255",
+		"buyPrice": "2721.9520065294237",
+		"sellPrice": "2724.675183741047",
+		"quantity": "0.003327180",
+		"percentagePosition": "-1",
+		"grid": "79100",
+		"tradesCounter": "0"
+	},
+	"79200": {
+		"price": "2750.681633",
+		"buyPrice": "2749.3067044280683",
+		"sellPrice": "2752.057248650488",
+		"quantity": "0.003310586",
+		"percentagePosition": "-1",
+		"grid": "79200",
+		"tradesCounter": "0"
+	},
+	"79300": {
+		"price": "2778.325054",
+		"buyPrice": "2776.9363077972475",
+		"sellPrice": "2779.7144940596736",
+		"quantity": "0.003294075",
+		"percentagePosition": "-1",
+		"grid": "79300",
+		"tradesCounter": "0"
+	},
+	"79400": {
+		"price": "2806.246282",
+		"buyPrice": "2804.8435793440467",
+		"sellPrice": "2807.6496854396414",
+		"quantity": "0.003277647",
+		"percentagePosition": "-1",
+		"grid": "79400",
+		"tradesCounter": "0"
+	},
+	"79500": {
+		"price": "2834.448109",
+		"buyPrice": "2833.031309539826",
+		"sellPrice": "2835.8656160534783",
+		"quantity": "0.003261300",
+		"percentagePosition": "-1",
+		"grid": "79500",
+		"tradesCounter": "0"
+	},
+	"79600": {
+		"price": "2862.933354",
+		"buyPrice": "2861.5023168992375",
+		"sellPrice": "2864.3651072356197",
+		"quantity": "0.003245035",
+		"percentagePosition": "-1",
+		"grid": "79600",
+		"tradesCounter": "0"
+	},
+	"79700": {
+		"price": "2891.704867",
+		"buyPrice": "2890.2594482620552",
+		"sellPrice": "2893.151008673961",
+		"quantity": "0.003228851",
+		"percentagePosition": "-1",
+		"grid": "79700",
+		"tradesCounter": "0"
+	},
+	"79800": {
+		"price": "2920.765524",
+		"buyPrice": "2919.30557907783",
+		"sellPrice": "2922.2261986947956",
+		"quantity": "0.003212748",
+		"percentagePosition": "-1",
+		"grid": "79800",
+		"tradesCounter": "0"
+	},
+	"79900": {
+		"price": "2950.118230",
+		"buyPrice": "2948.643613693408",
+		"sellPrice": "2951.5935845506265",
+		"quantity": "0.003196725",
+		"percentagePosition": "-1",
+		"grid": "79900",
+		"tradesCounter": "0"
+	},
+	"80000": {
+		"price": "2979.765922",
+		"buyPrice": "2978.276485643342",
+		"sellPrice": "2981.256102710859",
+		"quantity": "0.003180783",
+		"percentagePosition": "-1",
+		"grid": "80000",
+		"tradesCounter": "0"
+	},
+	"80100": {
+		"price": "3009.711562",
+		"buyPrice": "3008.207157943214",
+		"sellPrice": "3011.2167191554263",
+		"quantity": "0.003164919",
+		"percentagePosition": "-1",
+		"grid": "80100",
+		"tradesCounter": "0"
+	},
+	"80200": {
+		"price": "3039.958147",
+		"buyPrice": "3038.4386233859123",
+		"sellPrice": "3041.478429671355",
+		"quantity": "0.003149135",
+		"percentagePosition": "-1",
+		"grid": "80200",
+		"tradesCounter": "0"
+	},
+	"80300": {
+		"price": "3070.508699",
+		"buyPrice": "3068.973904840883",
+		"sellPrice": "3072.044260152322",
+		"quantity": "0.003133429",
+		"percentagePosition": "-1",
+		"grid": "80300",
+		"tradesCounter": "0"
+	},
+	"80400": {
+		"price": "3101.366274",
+		"buyPrice": "3099.8160555563863",
+		"sellPrice": "3102.91726690121",
+		"quantity": "0.003117802",
+		"percentagePosition": "-1",
+		"grid": "80400",
+		"tradesCounter": "0"
+	},
+	"80500": {
+		"price": "3132.533957",
+		"buyPrice": "3130.9681594647977",
+		"sellPrice": "3134.100536935716",
+		"quantity": "0.003102253",
+		"percentagePosition": "-1",
+		"grid": "80500",
+		"tradesCounter": "0"
+	},
+	"80600": {
+		"price": "3164.014864",
+		"buyPrice": "3162.4333314909713",
+		"sellPrice": "3165.5971882970193",
+		"quantity": "0.003086781",
+		"percentagePosition": "-1",
+		"grid": "80600",
+		"tradesCounter": "0"
+	},
+	"80700": {
+		"price": "3195.812145",
+		"buyPrice": "3194.214717863702",
+		"sellPrice": "3197.410370361561",
+		"quantity": "0.003071386",
+		"percentagePosition": "-1",
+		"grid": "80700",
+		"tradesCounter": "0"
+	},
+	"80800": {
+		"price": "3227.928977",
+		"buyPrice": "3226.3154964303217",
+		"sellPrice": "3229.5432641559505",
+		"quantity": "0.003056068",
+		"percentagePosition": "-1",
+		"grid": "80800",
+		"tradesCounter": "0"
+	},
+	"80900": {
+		"price": "3260.368572",
+		"buyPrice": "3258.738876974454",
+		"sellPrice": "3261.99908267504",
+		"quantity": "0.003040827",
+		"percentagePosition": "-1",
+		"grid": "80900",
+		"tradesCounter": "0"
+	},
+	"81000": {
+		"price": "3293.134175",
+		"buyPrice": "3291.4881015369638",
+		"sellPrice": "3294.7810712031937",
+		"quantity": "0.003025662",
+		"percentagePosition": "-1",
+		"grid": "81000",
+		"tradesCounter": "0"
+	},
+	"81100": {
+		"price": "3326.229060",
+		"buyPrice": "3324.5664447401305",
+		"sellPrice": "3327.892507638788",
+		"quantity": "0.003010572",
+		"percentagePosition": "-1",
+		"grid": "81100",
+		"tradesCounter": "0"
+	},
+	"81200": {
+		"price": "3359.656539",
+		"buyPrice": "3357.977214115081",
+		"sellPrice": "3361.33670282197",
+		"quantity": "0.002995557",
+		"percentagePosition": "-1",
+		"grid": "81200",
+		"tradesCounter": "0"
+	},
+	"81300": {
+		"price": "3393.419952",
+		"buyPrice": "3391.723750432513",
+		"sellPrice": "3395.117000865711",
+		"quantity": "0.002980617",
+		"percentagePosition": "-1",
+		"grid": "81300",
+		"tradesCounter": "0"
+	},
+	"81400": {
+		"price": "3427.522675",
+		"buyPrice": "3425.80942803674",
+		"sellPrice": "3429.236779490188",
+		"quantity": "0.002965752",
+		"percentagePosition": "-1",
+		"grid": "81400",
+		"tradesCounter": "0"
+	},
+	"81500": {
+		"price": "3461.968120",
+		"buyPrice": "3460.237655183096",
+		"sellPrice": "3463.6994503605247",
+		"quantity": "0.002950961",
+		"percentagePosition": "-1",
+		"grid": "81500",
+		"tradesCounter": "0"
+	},
+	"81600": {
+		"price": "3496.759730",
+		"buyPrice": "3495.0118743787298",
+		"sellPrice": "3498.5084594279265",
+		"quantity": "0.002936244",
+		"percentagePosition": "-1",
+		"grid": "81600",
+		"tradesCounter": "0"
+	},
+	"81700": {
+		"price": "3531.900984",
+		"buyPrice": "3530.135562726823",
+		"sellPrice": "3533.6672872742433",
+		"quantity": "0.002921600",
+		"percentagePosition": "-1",
+		"grid": "81700",
+		"tradesCounter": "0"
+	},
+	"81800": {
+		"price": "3567.395395",
+		"buyPrice": "3565.612232274271",
+		"sellPrice": "3569.1794494599976",
+		"quantity": "0.002907029",
+		"percentagePosition": "-1",
+		"grid": "81800",
+		"tradesCounter": "0"
+	},
+	"81900": {
+		"price": "3603.246513",
+		"buyPrice": "3601.4454303628504",
+		"sellPrice": "3605.0484968759056",
+		"quantity": "0.002892531",
+		"percentagePosition": "-1",
+		"grid": "81900",
+		"tradesCounter": "0"
+	},
+	"82000": {
+		"price": "3639.457923",
+		"buyPrice": "3637.6387399839277",
+		"sellPrice": "3641.2780160979373",
+		"quantity": "0.002878105",
+		"percentagePosition": "-1",
+		"grid": "82000",
+		"tradesCounter": "0"
+	},
+	"82100": {
+		"price": "3676.033245",
+		"buyPrice": "3674.1957801367193",
+		"sellPrice": "3677.8716297459373",
+		"quantity": "0.002863751",
+		"percentagePosition": "-1",
+		"grid": "82100",
+		"tradesCounter": "0"
+	},
+	"82200": {
+		"price": "3712.976137",
+		"buyPrice": "3711.120206190162",
+		"sellPrice": "3714.832996845857",
+		"quantity": "0.002849469",
+		"percentagePosition": "-1",
+		"grid": "82200",
+		"tradesCounter": "0"
+	},
+	"82300": {
+		"price": "3750.290293",
+		"buyPrice": "3748.4157102484155",
+		"sellPrice": "3752.165813195622",
+		"quantity": "0.002835258",
+		"percentagePosition": "-1",
+		"grid": "82300",
+		"tradesCounter": "0"
+	},
+	"82400": {
+		"price": "3787.979443",
+		"buyPrice": "3786.0860215200382",
+		"sellPrice": "3789.873811734677",
+		"quantity": "0.002821118",
+		"percentagePosition": "-1",
+		"grid": "82400",
+		"tradesCounter": "0"
+	},
+	"82500": {
+		"price": "3826.047357",
+		"buyPrice": "3824.1349066908733",
+		"sellPrice": "3827.9607629172488",
+		"quantity": "0.002807048",
+		"percentagePosition": "-1",
+		"grid": "82500",
+		"tradesCounter": "0"
+	},
+	"82600": {
+		"price": "3864.497840",
+		"buyPrice": "3862.5661703006867",
+		"sellPrice": "3866.4304750893525",
+		"quantity": "0.002793049",
+		"percentagePosition": "-1",
+		"grid": "82600",
+		"tradesCounter": "0"
+	},
+	"82700": {
+		"price": "3903.334737",
+		"buyPrice": "3901.3836551235804",
+		"sellPrice": "3905.2867948695966",
+		"quantity": "0.002779119",
+		"percentagePosition": "-1",
+		"grid": "82700",
+		"tradesCounter": "0"
+	},
+	"82800": {
+		"price": "3942.561932",
+		"buyPrice": "3940.59124255224",
+		"sellPrice": "3944.5336075338046",
+		"quantity": "0.002765259",
+		"percentagePosition": "-1",
+		"grid": "82800",
+		"tradesCounter": "0"
+	},
+	"82900": {
+		"price": "3982.183347",
+		"buyPrice": "3980.1928529860343",
+		"sellPrice": "3984.1748374035105",
+		"quantity": "0.002751468",
+		"percentagePosition": "-1",
+		"grid": "82900",
+		"tradesCounter": "0"
+	}
+}

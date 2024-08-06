@@ -1,26 +1,17 @@
 { 
   "1.1":{
-    "name": "BTC_Jun24",
-    "symbolSpot": "BTC/USDT",
-    "symbolFuture": "BTC/USDT_240628",
-    "poolAddress": "Fzmx2KMMPzquog3Wta75Wd2HPdpCVECLCRWLymNP6VK1"
-  },
-  "1.2":{
+    "strategy": "1_1",
     "name": "BTC_Sep24",
     "symbolSpot": "BTC/USDT",
     "symbolFuture": "BTC/USDT_240927",
-    "poolAddress": "FZy11c27J2zZJb7eqBxieqH7hYKnKgre6KJ45rywo3PY"
-  },
-  "1.3":{
-    "name": "ETH_Jun24",
-    "symbolSpot": "ETH/USDT",
-    "symbolFuture": "ETH/USDT_240628",
-    "poolAddress": "B8RfXyG2mioEU8BwHLjAhKaPuL36tzSRajTUGqdkGJ3u"
-  },
-  "1.4":{
-    "name": "ETH_Sep24",
-    "symbolSpot": "ETH/USDT",
-    "symbolFuture": "ETH/USDT_240927",
-    "poolAddress": "9pPDUBLEhtDEcqzSETHEihhbj64n3dRBn2sdjMQt9Fry"
+    "spotDecimals": "4",
+    "futuresDecimals": "3",
+    "futuresExchange": "binanceusdm",
+    "spotExchange": "binance",
+    "subaccount": "Test",
+    "oracleNetwork": "publicnet",
+    "contractAddress": "contractAddress",
+    "treasuryAddress": "treasuryAddress",
+    "rpcurl": "rpcurl"
   }
 }

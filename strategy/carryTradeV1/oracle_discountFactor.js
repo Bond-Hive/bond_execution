@@ -218,7 +218,7 @@ function logAllProperties(obj) {
 // For Testnet
 
 // executeTransaction({
-//   secretKey: "SAYTIFZPLLX4BOIS3BCP6WGJC6JUGT2MZBSLVL5RN5NTBBQJPHWCM3XQ",
+//   secretKey: "ADD_SECRECT_KEY",
 //   rpcServerUrl: "https://soroban-testnet.stellar.org:443",
 //   contractAddress: "CA3W4KUEWIH5UFI7VKYOK43ZBQ3L7CCYRDASBTVXYVDDTRVENY4RQD3Q",
 //   operationName: "set_discount",

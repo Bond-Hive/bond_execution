@@ -1,100 +1,70 @@
 'use strict';
 const { webSocketOrdersBinance } = require('./depositMonitor');
 const { enterDeltaHedge } = require('./deltaHedge');
-const civfund = require('@civfund/fund-libraries');
-const { dbMongoose } = require('@civfund/fund-libraries');
+const execution = require('../../main/services/execution-libraries/index');
+const { dbMongoose } = require('../../main/services/execution-libraries/index');
 const { averageYieldsGlobal,webSocketConnections,averageYieldsPostExecutionGlobal, averageDiscountFactorPostExecutionGlobal } = require('./yieldDisplay'); // Adjust the path as necessary
 const { executeOracleDiscountFactor, invokeFunction } = require('./oracle_discountFactor'); // Adjust the path as necessary
 const treasury_functions = require('./treasury_operations');
 const executionTracker = {};
+const {
+  SorobanRpc,
+} = require("@stellar/stellar-sdk");
+const server = new SorobanRpc.Server(process.env.QUICKNODE_API_STELLAR_PUBNET);
+const axios = require('axios');
 
 
 const mainFunction = async () => {
-  let liveStrategiesObj = await getLiveStrategiesMongo();
+  const handleDeposit = async (deposit, liveStrategiesObj) => {
+    if (deposit.network !== 'XLM' || deposit.currency !== 'USDC') return;
+
+    if (await checkExecutedTransaction(deposit.txid)) {
+      console.log('Transaction already executed');
+      return;
+    }
+    let treasuryAccount = await getTransactionByHash(deposit.txid);
+    let matchingStrategy = Object.values(liveStrategiesObj).find(strategy => strategy.treasuryAddress === treasuryAccount) || null;
+    console.log("matchingStrategy",matchingStrategy);
+    console.log("deposit",deposit);
+
+    let executedLiveStrategy;
+    let profitPercent;
+    let amount;
+    for (let liveStrategy of Object.values(liveStrategiesObj)) {
+      // step 1 - check if the asset is free to be used (from fetch deposit), if not wait and check again. Add in "in-process" in mongoDB so it is not picked by next
+      // step 2 - check collateral in coin-m, enough for next 20%? Enter delta hedge -> transfer 20% and rest of the 80%. If not, 20% spot -> transfer -> coin-m short
+
+      // const { strategy, symbolFuture, symbolSpot, spotExchange, subaccount, futuresExchange, spotDecimals } = liveStrategy;
+      // const clientOrderId = `V${strategy}-${deposit.id}`;
+      // profitPercent = calculateProfitPercent(symbolFuture);
+      // amount = deposit.amount / (webSocketConnections[symbolFuture].getPrice());
+
+      // await processSpotTransactions(strategy, subaccount, symbolSpot, amount, spotDecimals);
+      // await processFuturesTransactions(strategy, subaccount, symbolSpot, symbolFuture, amount, spotDecimals, futuresExchange, clientOrderId, profitPercent);
+
+      // executedLiveStrategy = liveStrategy;
+      // break;
+    }
+
+    // uploadExecutedTransaction(deposit, executedLiveStrategy, profitPercent, amount);
+  };
+
+  const processSpotTransactions = async (strategy, subaccount, symbolSpot, amount, spotDecimals) => {
+    executeSpotOrderWithWebsocket(strategy, subaccount, symbolSpot, amount * 0.2, spotDecimals, "BUY", "MARKET", `${clientOrderId}-20`);
+    internalFundsTransfer(strategy, subaccount, symbolSpot, amount * 0.2, 'spot', 'future');
+  };
+
+  const processFuturesTransactions = async (spotExchange, futuresExchange, subaccount, clientOrderId, symbolSpot, symbolFuture, amount, spotDecimals, futuresDecimals, profitPercent) => {
+    enterDeltaHedge(spotExchange, futuresExchange, subaccount, clientOrderId, symbolSpot, symbolFuture, amount, spotDecimals, futuresDecimals, 1, profitPercent * 100);
+    internalFundsTransfer(spotExchange, subaccount, symbolSpot, amount * 0.8, 'spot', 'future');
+  };
+
   const onMessageCallback = async (response) => {
-    if (response.e =="outboundAccountPosition"){ // need to change this to balanceUpdate on main, testing done with 'outboundAccountPosition'
-      let depositResults = await getBinanceDeposits('binance','Test','USDC',getUnixTimestampForLastDay());
-      for (let deposit in depositResults){
-        if (depositResults[deposit].network == 'XLM' && depositResults[deposit].currency == 'USDT'){ // need to change this to USDT on main testing
-          if (!(await checkExecutedTransaction(depositResults[deposit].txid))){
-            // let senderAddress = await getTransactionDetails(depositResults[deposit].txid); // need to change to Stellar
-            let executedLiveStrategy; let profitPercent; let amount;
-            for (let liveStrategy in liveStrategiesObj) {
-              let strategy = liveStrategiesObj[liveStrategy];
-              let clientOrderId = `V${strategy.strategy}-${depositResults[deposit].id}`;
-              profitPercent = calculateProfitPercent(strategy.symbolFuture);
-              amount = depositResults[deposit].amount/(webSocketConnections[strategy.symbolFuture].getPrice());
-              // spot buy 20% of asset
-              executeSpotOrderWithWebsocket(
-                strategy.spotExchange,
-                strategy.subaccount,
-                strategy.symbolSpot,
-                amount * 0.2,
-                strategy.spotDecimals,
-                "BUY",
-                "MARKET",
-                `V${strategy.strategy}-${depositResults[deposit].id}-20`
-              );
-              // transfer 20% to coin-m
-              internalFundsTransfer(
-                strategy.spotExchange,
-                strategy.subaccount,
-                strategy.symbolSpot,
-                amount * 0.2,
-                'spot',
-                'future'
-              );
-              getBinanceInternalTransfers(
-                strategy.futuresExchange,
-                strategy.subaccount,
-                strategy.symbolSpot,
-                // add since
-              )
-
-              // execute short futures for 100% - together
-              if (strategy.poolAddress === senderAddress) {
-                await enterDeltaHedge(
-                  strategy.spotExchange,
-                  strategy.futuresExchange,
-                  strategy.subaccount,
-                  clientOrderId,
-                  strategy.symbolSpot,
-                  strategy.symbolFuture,
-                  amount,
-                  strategy.spotDecimals,
-                  strategy.futuresDecimals,
-                  1,
-                  profitPercent*100
-                );
-                executedLiveStrategy = strategy;
-                break;
-              }
-
-              // execute spot buy for 80% - together
-              // transfer remaining 80% to coin-m
-              internalFundsTransfer(
-                strategy.spotExchange,
-                strategy.subaccount,
-                strategy.symbolSpot,
-                amount * 0.8,
-                'spot',
-                'future'
-              );
-              getBinanceInternalTransfers(
-                strategy.futuresExchange,
-                strategy.subaccount,
-                strategy.symbolSpot,
-                // add since
-              )
-
-            };
-            uploadExecutedTransaction(depositResults[deposit],executedLiveStrategy,profitPercent,amount);
-            // transfer the assets from spot to future
-          } else {
-            console.log('Transaction already executed');
-          }
-        }
-      }
+    if (response.e !== "outboundAccountPosition") return;  // need to change this to balanceUpdate on main, testing done with 'outboundAccountPosition'
+    const liveStrategiesObj = await getLiveStrategiesMongo();
+    const deposits = await getBinanceDeposits('binance', 'Test', 'USDC', getUnixTimestampForLastDay());
+    for (let deposit of deposits) {
+      await handleDeposit(deposit, liveStrategiesObj);
     }
   };
   webSocketOrdersBinance('Test', onMessageCallback);
@@ -102,16 +72,38 @@ const mainFunction = async () => {
 
 // Check for the funds have been deposited into the Binance wallet
 const getBinanceDeposits = async function(exchangeName,subaccount,assetName,since,limit=10) {
-  let cex = civfund.initializeCcxt(exchangeName,subaccount);
+  let cex = execution.initializeCcxt(exchangeName,subaccount);
   return await cex.fetchDeposits(assetName, since, limit);
 };
 
 function getUnixTimestampForLastDay() {
-  const oneDayInMilliseconds = 2 * 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+  const oneDayInMilliseconds = 7 * 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
   const currentDate = new Date(); // Current date and time
   const lastDayTimestamp = new Date(currentDate.getTime() - oneDayInMilliseconds); // Subtract 1 day from the current date
   
   return Math.floor(lastDayTimestamp.getTime()); // Convert to Unix timestamp (in seconds) and return
+}
+
+async function getTransactionByHash(transactionHash) {
+  const url = `${process.env.QUICKNODE_API}transactions/${transactionHash}`;
+
+  try {
+    const response = await axios.get(url, {
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+
+    // Check if the transaction data is successfully retrieved
+    if (response.data) {
+      return response.data.source_account;
+    } else {
+      throw new Error('Transaction data not found in the response');
+    }
+  } catch (error) {
+    console.error(`Error fetching transaction with hash ${transactionHash}:`, error);
+    throw error; // Rethrow to handle it in the calling function
+  }
 }
 
 const executeSpotOrderWithWebsocket = async function(
@@ -122,17 +114,18 @@ const executeSpotOrderWithWebsocket = async function(
   decimals,
   side,
   orderType,
-  clientOrderId
+  clientOrderId,
+  price
   ){
-  let cex = await civfund.initializeCcxt(exchange,subaccount);
-  civfund.ccxt.ccxtCreateOrderWithNomenclature(
+  let cex = await execution.initializeCcxt(exchange,subaccount);
+  execution.ccxt.ccxtCreateOrderWithNomenclature(
     cex,
     exchange,
     pair,
     orderType,
     side,
     Number(Number(amount).toFixed(decimals)),
-    undefined,
+    price,
     `${clientOrderId}`,
     process.env.CCXT_PASSWORD,
   );
@@ -142,13 +135,13 @@ const executeSpotOrderWithWebsocket = async function(
 
 // Internal Asset transfer
 const internalFundsTransfer = async function(exchangeName,subaccount,assetName,amount,fromAccount,toAccount) { // --> Sample for Frank
-  let cex = civfund.initializeCcxt(exchangeName,subaccount);
+  let cex = execution.initializeCcxt(exchangeName,subaccount);
   return await cex.transfer(assetName, amount, fromAccount, toAccount)
   // Sample use --> internalFundsTransfer('binanceusdm','Test',"USDT",1000,'spot','future');
 };
 
 const getBinanceInternalTransfers = async function(exchangeName,subaccount,assetName,since,limit=50) { // --> Sample for Frank
-  let cex = civfund.initializeCcxt(exchangeName,subaccount);
+  let cex = execution.initializeCcxt(exchangeName,subaccount);
   console.log(await cex.fetchTransfers(assetName, since, limit));
   // Sample use --> getBinanceTransfers('binanceusdm','Test7','USDT',1685111342000);
   /* Payload for getBinanceTransfers
@@ -325,7 +318,7 @@ async function uploadExecutedTransaction(depositResults,executedLiveStrategy,pro
     APY: averageYieldsGlobal[executedLiveStrategy.symbolFuture]*100,
     APYPostexecution: averageYieldsPostExecutionGlobal[executedLiveStrategy.symbolFuture]*100,
   };
-  await civfund.dbMongoose.insertOne(dbName, collectionName, modelName, newRecord);
+  await execution.dbMongoose.insertOne(dbName, collectionName, modelName, newRecord);
 }
 
 function calculateProfitPercent(symbolFuture,postExecution = false) {
@@ -356,7 +349,10 @@ function calculateProfitPercent(symbolFuture,postExecution = false) {
   return Math.abs(absolutePercent); // Ensure it's an absolute value
 }
 
-mainFunction();
+// if (typeof process.env.LOCAL_WEBSOCKET_STOP === "undefined"){
+  mainFunction();
+// }
+
 
 module.exports = {
   mainFunction,

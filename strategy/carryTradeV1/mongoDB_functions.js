@@ -1,6 +1,6 @@
 'use strict';
-const civfund = require('@civfund/fund-libraries');
-const { dbMongoose } = require('@civfund/fund-libraries');
+const execution = require('../../main/services/execution-libraries/index');
+const { dbMongoose } = require('../../main/services/execution-libraries/index');
 const { averageYieldsGlobal,averageYieldsPostExecutionGlobal } = require('./yieldDisplay'); // Adjust the path as necessary
 
 
@@ -120,7 +120,7 @@ async function uploadExecutedTransaction(depositResults,executedLiveStrategy,pro
     APY: averageYieldsGlobal[executedLiveStrategy.symbolFuture]*100,
     APYPostexecution: averageYieldsPostExecutionGlobal[executedLiveStrategy.symbolFuture]*100,
   };
-  await civfund.dbMongoose.insertOne(dbName, collectionName, modelName, newRecord);
+  await execution.dbMongoose.insertOne(dbName, collectionName, modelName, newRecord);
 }
 
 module.exports = {

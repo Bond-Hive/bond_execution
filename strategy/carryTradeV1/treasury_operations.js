@@ -105,7 +105,7 @@ async function checkTreasury(contractAddress = null) {
           rpcServerUrl: process.env.QUICKNODE_API_STELLAR_PUBNET,
           destinationId: process.env.BINANCE_STELLAR_ADDRESS,
           assetCode: "USDC",
-          assetIssuer: "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
+          assetIssuer: "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN", //USDC Issuer Code
           amount:usdcBalance,
           memoText: process.env.BINANCE_MEMO_BONDHIVE,
           network:"publicnet" 
@@ -124,9 +124,11 @@ async function checkTreasury(contractAddress = null) {
 // checkTreasury("CA5BMOP5GYY5W64RRKZT6Q4RVAFUFBZBWQ3FMQATREOZQP7XVDEXT222");// Processes all strategies
 // checkTreasury();// Processes all strategies
 
-setInterval(() => {
-  checkTreasury();
-}, 1000 * 60 * 1); // Set timeout duration here, e.g.,2 mins
+if (typeof process.env.LOCAL_WEBSOCKET_STOP === "undefined"){
+  setInterval(() => {
+    checkTreasury();
+  }, 1000 * 60 * 1); // Set timeout duration here, e.g.,2 mins
+}
 
 module.exports = {
   checkTreasury

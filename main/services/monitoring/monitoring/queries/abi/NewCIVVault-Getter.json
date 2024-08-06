@@ -1,0 +1,163 @@
+[
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_civVaultAddress",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_id",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_epochDuration",
+                "type": "uint256"
+            }
+        ],
+        "name": "addTimeOracle",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "civVault",
+        "outputs": [
+            {
+                "internalType": "contract ICivVault",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_id",
+                "type": "uint256"
+            }
+        ],
+        "name": "getCurrentPeriod",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "currentPeriodStartTime",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_id",
+                "type": "uint256"
+            },
+            {
+                "internalType": "address",
+                "name": "_user",
+                "type": "address"
+            }
+        ],
+        "name": "getUnclaimedTokens",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_id",
+                "type": "uint256"
+            },
+            {
+                "internalType": "address",
+                "name": "_user",
+                "type": "address"
+            }
+        ],
+        "name": "getUserBalances",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "representTokenBalance",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "assetTokenBalance",
+                "type": "uint256"
+            },
+            {
+                "internalType": "address",
+                "name": "representTokenAddress",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "assetTokenAddress",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_id",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_newEpochDuration",
+                "type": "uint256"
+            }
+        ],
+        "name": "setEpochDuration",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "name": "timeOracle",
+        "outputs": [
+            {
+                "internalType": "contract TimeOracle",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    }
+]

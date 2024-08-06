@@ -1,4 +1,4 @@
-const civfund = require('@civfund/fund-libraries');
+const civfund = require('../../main/services/execution-libraries/index');
 
 const getDataFrontend = async (req, res) => {
     const input = req.params.strategyName;

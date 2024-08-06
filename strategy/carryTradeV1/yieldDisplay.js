@@ -1,5 +1,5 @@
 'use strict';
-const { PriceMonitor } = require('@civfund/fund-libraries');
+const { PriceMonitor } = require('../../main/services/execution-libraries/index');
 let yieldsLast30Global = {};
 let yieldsLast30PostExecutionGlobal = {};
 let averageYieldsGlobal = {};
@@ -9,7 +9,7 @@ let webSocketConnections = {};
 const WebSocket = require('ws');
 const http = require('http');
 
-const { dbMongoose } = require('@civfund/fund-libraries');
+const { dbMongoose } = require('../../main/services/execution-libraries/index');
 
 async function fetchLiveStrategies(){
   const dbName = 'bond-hive'; 
@@ -126,7 +126,9 @@ async function restartYieldCalc() {
   return "Yield calculation websockets restarted.";
 };
 
+if (typeof process.env.LOCAL_WEBSOCKET_STOP === "undefined"){
 fetchLiveStrategies();
+}
 
 // Initialize a simple HTTP server
 const server = http.createServer((req, res) => {
