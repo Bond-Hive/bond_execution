@@ -52,7 +52,7 @@ async function fetchLiveStrategies(){
 }
 
 function setupYieldCalculation(symbolSpot,symbolFuture,maturity) {
-  const futurePriceMonitor = new PriceMonitor('last', symbolFuture, null, 'binanceusdm', null, null, null, true);
+  const futurePriceMonitor = new PriceMonitor('last', symbolFuture, null, 'binancecoinm', null, null, null, true);
   const spotPriceMonitor = new PriceMonitor('last', symbolSpot, null, 'binance', null, null, null, true);
   //Storing the connections
   webSocketConnections[symbolFuture] = futurePriceMonitor;

@@ -77,7 +77,7 @@ class PriceMonitor extends EventEmitter {
 
     if (symbol2 && !symbol1) throw new Error('Symbol 2 can be defined only if symbol 1 is defined!');
 
-    if (exchange === 'binanceusdm' || exchange === 'binancecoinm') {
+    if (exchange === 'binanceusdm') {
       // Check the type of WebSocket to connect to
       if (type === 'mark') {
         this.ws1 = new ReconnectingWebSocket(`wss://fstream.binance.com/ws/${utilities.toLowercasePair(symbol1)}@markPrice@1s`, [], { WebSocket: WS });
@@ -86,7 +86,17 @@ class PriceMonitor extends EventEmitter {
         this.ws1 = new ReconnectingWebSocket(`wss://fstream.binance.com/ws/${utilities.toLowercasePair(symbol1)}@ticker`, [], { WebSocket: WS });
         if (symbol2) this.ws2 = new ReconnectingWebSocket(`wss://fstream.binance.com/ws/${utilities.toLowercasePair(symbol2)}@ticker`, [], { WebSocket: WS });
       } else throw new Error(`Invalid WebSocket type on ${symbol1} and ${symbol2}`);
-    } else if (exchange === 'okx') {
+    } else if (exchange === 'binancecoinm') {
+      // Check the type of WebSocket to connect to
+      if (type === 'mark') {
+        this.ws1 = new ReconnectingWebSocket(`wss://dstream.binance.com/ws/${utilities.toLowercasePair(symbol1)}@markPrice@1s`, [], { WebSocket: WS });
+        if (symbol2) this.ws2 = new ReconnectingWebSocket(`wss://dstream.binance.com/ws/${utilities.toLowercasePair(symbol2)}@markPrice@1s`, [], { WebSocket: WS });
+      } else if (type === 'last') {
+        this.ws1 = new ReconnectingWebSocket(`wss://dstream.binance.com/ws/${utilities.toLowercasePair(symbol1)}@ticker`, [], { WebSocket: WS });
+        if (symbol2) this.ws2 = new ReconnectingWebSocket(`wss://dstream.binance.com/ws/${utilities.toLowercasePair(symbol2)}@ticker`, [], { WebSocket: WS });
+      } else throw new Error(`Invalid WebSocket type on ${symbol1} and ${symbol2}`);
+    } else if
+    (exchange === 'okx') {
       if (type === 'mark') {
         this.ws1 = new ReconnectingWebSocket('wss://ws.okx.com:8443/ws/v5/public', [], { WebSocket: WS });
         if (symbol2) this.ws2 = new ReconnectingWebSocket('wss://ws.okx.com:8443/ws/v5/public', [], { WebSocket: WS });
@@ -176,7 +186,7 @@ class PriceMonitor extends EventEmitter {
     this.resetTimer(wsNumber);
     let stockPriceElement = null;
 
-    if (exchange === 'binanceusdm') {
+    if (exchange === 'binanceusdm' || exchange === 'binancecoinm') {
       const stockObject = JSON.parse(event.data);
       stockPriceElement = type === 'mark' ? parseFloat(stockObject.p) : parseFloat(stockObject.c);
     } else if (exchange === 'okx') {
