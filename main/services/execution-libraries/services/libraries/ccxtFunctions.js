@@ -300,21 +300,17 @@ const ccxtCreateOrderWithNomenclature = async function(
     clientId,
     inputPassword,
 ) {
-  if (await checkPassword(inputPassword)) {
-    let param;
-    if	(exchangeName == 'binance' || exchangeName == 'binanceusdm') {
-      param = {
-        'clientOrderId': clientId,
-      };
-    } else if (exchangeName == 'ftx') {
-      param = {
-        'orderId': clientId,
-      };
-    }
-    return await cex.createOrder(symbol, type, side, amount, price, param);
-  } else {
-    return 'failed authentication!';
+  let param;
+  if	(exchangeName == 'binance' || exchangeName == 'binanceusdm' || exchangeName == 'binancecoinm' ) {
+    param = {
+      'clientOrderId': clientId,
+    };
+  } else if (exchangeName == 'ftx') {
+    param = {
+      'orderId': clientId,
+    };
   }
+  return await cex.createOrder(symbol, type, side, amount, price, param);
 };
 
 const ccxtCreateLimitOrder = async function(

@@ -1,12 +1,23 @@
 'use strict';
 const { webSocketOrdersBinance } = require('./depositMonitor');
-const { enterDeltaHedge } = require('./deltaHedge');
+const { enterDeltaHedge, executeFuturesOrderWithWebsocket } = require('./deltaHedge');
 const execution = require('../../main/services/execution-libraries/index');
 const { dbMongoose } = require('../../main/services/execution-libraries/index');
 const { averageYieldsGlobal,webSocketConnections,averageYieldsPostExecutionGlobal, averageDiscountFactorPostExecutionGlobal } = require('./yieldDisplay'); // Adjust the path as necessary
 const { executeOracleDiscountFactor, invokeFunction } = require('./oracle_discountFactor'); // Adjust the path as necessary
 const treasury_functions = require('./treasury_operations');
 const executionTracker = {};
+const webSocketPriceMonitorUniversal = require('../../main/streams/priceStreams'); // Price Websocket input for sharing  the particular asset prices
+let handledDeposit = [];
+
+function clearCache() {
+  handledDeposit = []; // This resets the cache object
+}
+
+// Schedule cache clearing every 5 minutes
+// 300000 milliseconds = 5 minutes
+setInterval(clearCache, 300000);
+
 const {
   SorobanRpc,
 } = require("@stellar/stellar-sdk");
@@ -18,40 +29,35 @@ const mainFunction = async () => {
   const handleDeposit = async (deposit, liveStrategiesObj) => {
     if (deposit.network !== 'XLM' || deposit.currency !== 'USDC') return;
 
-    if (await checkExecutedTransaction(deposit.txid)) {
-      console.log('Transaction already executed');
+    if (handledDeposit.includes(deposit.txid)) {
+      console.log('Transaction already executed and recorded');
       return;
+    } else if (await checkExecutedTransaction(deposit.txid)) {
+      console.log('Transaction already executed');
+    } else {
+      handledDeposit.push(deposit.txid);  // Record the txId in the global array to avoid future checks
     }
+
+    if (!await checkAssetRelease(deposit.txid)) {
+      console.log('Processing stopped due to insufficient confirm times');
+      return; // Stop processing if confirm times never satisfy the condition
+    }
+
     let treasuryAccount = await getTransactionByHash(deposit.txid);
     let matchingStrategy = Object.values(liveStrategiesObj).find(strategy => strategy.treasuryAddress === treasuryAccount) || null;
-    console.log("matchingStrategy",matchingStrategy);
-    console.log("deposit",deposit);
-
-    let executedLiveStrategy;
-    let profitPercent;
-    let amount;
-    for (let liveStrategy of Object.values(liveStrategiesObj)) {
-      // step 1 - check if the asset is free to be used (from fetch deposit), if not wait and check again. Add in "in-process" in mongoDB so it is not picked by next
-      // step 2 - check collateral in coin-m, enough for next 20%? Enter delta hedge -> transfer 20% and rest of the 80%. If not, 20% spot -> transfer -> coin-m short
-
-      // const { strategy, symbolFuture, symbolSpot, spotExchange, subaccount, futuresExchange, spotDecimals } = liveStrategy;
-      // const clientOrderId = `V${strategy}-${deposit.id}`;
-      // profitPercent = calculateProfitPercent(symbolFuture);
-      // amount = deposit.amount / (webSocketConnections[symbolFuture].getPrice());
-
-      // await processSpotTransactions(strategy, subaccount, symbolSpot, amount, spotDecimals);
-      // await processFuturesTransactions(strategy, subaccount, symbolSpot, symbolFuture, amount, spotDecimals, futuresExchange, clientOrderId, profitPercent);
-
-      // executedLiveStrategy = liveStrategy;
-      // break;
+    if (!matchingStrategy) {
+      console.log("No matching strategy found.");
+      return;
     }
 
-    // uploadExecutedTransaction(deposit, executedLiveStrategy, profitPercent, amount);
+    await manageDeltaNeutralStrategy(deposit, matchingStrategy);
+
+    uploadExecutedTransaction(deposit, matchingStrategy, "NA", deposit.amount);
   };
 
   const processSpotTransactions = async (strategy, subaccount, symbolSpot, amount, spotDecimals) => {
-    executeSpotOrderWithWebsocket(strategy, subaccount, symbolSpot, amount * 0.2, spotDecimals, "BUY", "MARKET", `${clientOrderId}-20`);
-    internalFundsTransfer(strategy, subaccount, symbolSpot, amount * 0.2, 'spot', 'future');
+    executeSpotOrderWithWebsocket(strategy, subaccount, symbolSpot, amount, spotDecimals, "BUY", "MARKET", `${clientOrderId}-20`);
+    internalFundsTransfer(strategy, subaccount, symbolSpot, amount, 'spot', 'future');
   };
 
   const processFuturesTransactions = async (spotExchange, futuresExchange, subaccount, clientOrderId, symbolSpot, symbolFuture, amount, spotDecimals, futuresDecimals, profitPercent) => {
@@ -70,14 +76,72 @@ const mainFunction = async () => {
   webSocketOrdersBinance('Test', onMessageCallback);
 };
 
+async function manageDeltaNeutralStrategy(deposit, matchingStrategy, leverageMultiplier = 5) {
+  const [firstSymbol, secondSymbol] = matchingStrategy.symbolSpot.split('/');
+  const price = webSocketPriceMonitorUniversal[matchingStrategy.websocket].getPrice();
+  const mS = matchingStrategy;
+  let usdtFreeBalance = (await getBinanceBalance(matchingStrategy.futuresExchange, matchingStrategy.subaccount))[firstSymbol].free * price;
+
+  let totalAmountNeeded = deposit.amount; // Total spot amount needed to fully utilize the deposit
+
+  // If balance is less than the minimal trade unit, initiate a minimal trade
+  if (usdtFreeBalance * leverageMultiplier < mS.minTradeSize) {
+    console.log('No sufficient free assets to start trading, initiating minimal trade...');
+
+    const clientOrderId = `${mS.name}_${deposit.txid.slice(0, 4)}_${deposit.txid.slice(-4)}`;
+    let spotAmounToExecute = Number(Number(mS.minTradeSize/price).toFixed(mS.spotDecimals));
+    let spotResult = await executeSpotOrderWithWebsocket(mS.spotExchange, mS.subaccount, mS.symbolSpot, spotAmounToExecute, mS.spotDecimals, 'BUY', 'MARKET', clientOrderId);
+    let transferAmount = spotAmounToExecute; // Assuming transfer of the bought amount
+    let transferResult = await internalFundsTransfer(mS.spotExchange, mS.subaccount, firstSymbol, transferAmount, 'spot', 'delivery');
+    usdtFreeBalance = (await getBinanceBalance(mS.futuresExchange, mS.subaccount))[firstSymbol].free * price;
+    let futuresResult = await executeFuturesOrderWithWebsocket(mS.futuresExchange, mS.subaccount, mS.symbolFuture, mS.minTradeSize/mS.minTradeSize, mS.futuresDecimals, 'SELL', 'MARKET', clientOrderId)
+    totalAmountNeeded -= transferAmount*price; // Reduce the total amount needed by the amount executed
+    console.log("totalAmountNeeded",totalAmountNeeded);
+  }
+
+  while (usdtFreeBalance * leverageMultiplier < totalAmountNeeded && totalAmountNeeded > mS.minTradeSize) {
+    let amountToExecute = Math.floor(usdtFreeBalance * leverageMultiplier);
+    console.log(`Executing trade with amount: ${amountToExecute}`);
+    let spotAmounToExecute = Number(Number(amountToExecute/price).toFixed(mS.spotDecimals));
+    let spotResult = await executeSpotOrderWithWebsocket(mS.spotExchange, mS.subaccount, mS.symbolSpot, spotAmounToExecute, mS.spotDecimals, 'BUY', 'MARKET', clientOrderId);
+    let futuresResult = await executeFuturesOrderWithWebsocket(mS.futuresExchange, mS.subaccount, mS.symbolFuture, amountToExecute/mS.minTradeSize, mS.futuresDecimals, 'SELL', 'MARKET', clientOrderId)
+    totalAmountNeeded -= amountToExecute; // Update the totalAmountNeeded after executing part of it
+    let transferAmount = amountToExecute; // Calculate and transfer 100% of the executed amount to continue trades
+    console.log(`Transferring ${transferAmount} from spot to futures to continue trades.`);
+    await internalFundsTransfer(matchingStrategy.spotExchange, matchingStrategy.subaccount, matchingStrategy.symbolSpot, transferAmount, 'spot', 'future');
+    usdtFreeBalance = (await getBinanceBalance(matchingStrategy.futuresExchange, matchingStrategy.subaccount))[firstSymbol].free * price;
+  }
+
+  // Execute the final trade if the balance suffices for the remaining amount
+  if (usdtFreeBalance * leverageMultiplier >= totalAmountNeeded && totalAmountNeeded > 0) {
+    console.log(`Executing final trade with remaining amount: ${totalAmountNeeded}`);
+    let spotAmounToExecute = Number(Number(totalAmountNeeded/price).toFixed(mS.spotDecimals));
+    let spotResult = await executeSpotOrderWithWebsocket(mS.spotExchange, mS.subaccount, mS.symbolSpot, spotAmounToExecute, mS.spotDecimals, 'BUY', 'MARKET', clientOrderId);
+    let futuresResult = await executeFuturesOrderWithWebsocket(mS.futuresExchange, mS.subaccount, mS.symbolFuture, totalAmountNeeded/mS.minTradeSize, mS.futuresDecimals, 'SELL', 'MARKET', clientOrderId)
+    let transferAmount = spotAmounToExecute; // Calculate and transfer 100% of the executed amount to continue trades
+    console.log(`Transferring ${transferAmount} from spot to futures to continue trades.`);
+    await internalFundsTransfer(matchingStrategy.spotExchange, matchingStrategy.subaccount, matchingStrategy.symbolSpot, transferAmount, 'spot', 'future');
+    usdtFreeBalance = (await getBinanceBalance(matchingStrategy.futuresExchange, matchingStrategy.subaccount))[firstSymbol].free * price;
+  }
+
+  return "execution successful";
+}
+
+
+
 // Check for the funds have been deposited into the Binance wallet
 const getBinanceDeposits = async function(exchangeName,subaccount,assetName,since,limit=10) {
   let cex = execution.initializeCcxt(exchangeName,subaccount);
   return await cex.fetchDeposits(assetName, since, limit);
 };
 
+const getBinanceBalance = async function(exchangeName,subaccount) {
+  let cex = execution.initializeCcxt(exchangeName,subaccount);
+  return await cex.fetchBalance();
+};
+
 function getUnixTimestampForLastDay() {
-  const oneDayInMilliseconds = 7 * 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+  const oneDayInMilliseconds = 10 * 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
   const currentDate = new Date(); // Current date and time
   const lastDayTimestamp = new Date(currentDate.getTime() - oneDayInMilliseconds); // Subtract 1 day from the current date
   
@@ -104,7 +168,32 @@ async function getTransactionByHash(transactionHash) {
     console.error(`Error fetching transaction with hash ${transactionHash}:`, error);
     throw error; // Rethrow to handle it in the calling function
   }
-}
+};
+
+const checkAssetRelease = async (txid, maxRetries = 5) => {
+  for (let retry = 0; retry < maxRetries; retry++) {
+    const deposits = await getBinanceDeposits('binance', 'Test', 'USDC', getUnixTimestampForLastDay());
+    const deposit = deposits.find(d => d.txid === txid);
+
+    if (!deposit) {
+      console.log('No deposit found with the given txid');
+      return false;
+    }
+
+    const [numerator, denominator] = deposit.info.confirmTimes.split('/').map(Number);
+
+    if (numerator >= denominator) {
+      console.log(`Confirm times are satisfactory: ${deposit.info.confirmTimes}`);
+      return true;
+    }
+
+    console.log(`Confirm times not met (${deposit.info.confirmTimes}), retrying after 20 seconds...`);
+    await new Promise(resolve => setTimeout(resolve, 20000)); // 20 second delay
+  }
+
+  console.log('Max retries reached, confirm times check failed');
+  return false;
+};
 
 const executeSpotOrderWithWebsocket = async function(
   exchange,
@@ -115,17 +204,16 @@ const executeSpotOrderWithWebsocket = async function(
   side,
   orderType,
   clientOrderId,
-  price
   ){
   let cex = await execution.initializeCcxt(exchange,subaccount);
-  execution.ccxt.ccxtCreateOrderWithNomenclature(
+  await execution.ccxt.ccxtCreateOrderWithNomenclature(
     cex,
     exchange,
     pair,
     orderType,
     side,
     Number(Number(amount).toFixed(decimals)),
-    price,
+    undefined,
     `${clientOrderId}`,
     process.env.CCXT_PASSWORD,
   );
@@ -137,8 +225,9 @@ const executeSpotOrderWithWebsocket = async function(
 const internalFundsTransfer = async function(exchangeName,subaccount,assetName,amount,fromAccount,toAccount) { // --> Sample for Frank
   let cex = execution.initializeCcxt(exchangeName,subaccount);
   return await cex.transfer(assetName, amount, fromAccount, toAccount)
-  // Sample use --> internalFundsTransfer('binanceusdm','Test',"USDT",1000,'spot','future');
+  // Sample use --> internalFundsTransfer('binanceusdm','Test',"USDT",1000,'spot','future'); // to list all options use console.log(cex.options['accountsByType']
 };
+
 
 const getBinanceInternalTransfers = async function(exchangeName,subaccount,assetName,since,limit=50) { // --> Sample for Frank
   let cex = execution.initializeCcxt(exchangeName,subaccount);
@@ -304,7 +393,7 @@ async function uploadExecutedTransaction(depositResults,executedLiveStrategy,pro
     name: executedLiveStrategy.name,
     symbolSpot: executedLiveStrategy.symbolSpot,
     symbolFuture: executedLiveStrategy.symbolFuture,
-    depositAddress: executedLiveStrategy.poolAddress,
+    depositAddress: executedLiveStrategy.contractAddress,
     exchangeId: depositResults.id,
     txid: depositResults.txid,
     depositTimestamp: depositResults.timestamp,
@@ -313,10 +402,10 @@ async function uploadExecutedTransaction(depositResults,executedLiveStrategy,pro
     network: depositResults.network,
     currency: depositResults.currency,
     amount: amount,
-    profitPercent: profitPercent*100,
-    profitPercentPostExecution: calculateProfitPercent(executedLiveStrategy.symbolFuture,true)*100,
-    APY: averageYieldsGlobal[executedLiveStrategy.symbolFuture]*100,
-    APYPostexecution: averageYieldsPostExecutionGlobal[executedLiveStrategy.symbolFuture]*100,
+    // profitPercent: profitPercent*100,
+    // profitPercentPostExecution: calculateProfitPercent(executedLiveStrategy.symbolFuture,true)*100,
+    // APY: averageYieldsGlobal[executedLiveStrategy.symbolFuture]*100,
+    // APYPostexecution: averageYieldsPostExecutionGlobal[executedLiveStrategy.symbolFuture]*100,
   };
   await execution.dbMongoose.insertOne(dbName, collectionName, modelName, newRecord);
 }

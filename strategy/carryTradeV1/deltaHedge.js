@@ -185,7 +185,7 @@ const executeSpotOrderWithWebsocket = async function(
 };
 
 
-const executeFuturesOrderWithWebsocket = function(
+const executeFuturesOrderWithWebsocket = async function(
   exchange,
   subaccount,
   pair,
@@ -207,7 +207,7 @@ const executeFuturesOrderWithWebsocket = function(
     false
   );
   
-  priceMonitor.binanceCreateOrder(
+  await priceMonitor.binanceCreateOrder(
     subaccount,
     pair,
     orderType,
@@ -219,6 +219,11 @@ const executeFuturesOrderWithWebsocket = function(
   return "Order Executed";
 };
 
+// executeFuturesOrderWithWebsocket("binancecoinm","Test","ETHUSD_PERP",1,0,"BUY","LIMIT","TEST_2",1940); // Quantity is in Cont (1cont = $10) terms and precision is 0 decimal points, Symbol = "ETHUSD_PERP"
+
+// executeFuturesOrderWithWebsocket("binancecoinm","Test","ETHUSD_240927",1,0,"BUY","LIMIT","TEST_2",1940); // Quantity is in Cont (1cont = $10) terms and precision is 0 decimal points, Symbol = "ETHUSD_PERP"
+
+// executeFuturesOrderWithWebsocket("binanceusdm","Test","ETH/USD",0.015,3,"BUY","LIMIT","TEST_2",1940); // Quantity is in ETH terms and precision is 3 decimal points
 
 // enterDeltaHedge('binance','binanceusdm','Test','V2_21','shib/usdt','1000shib/usdt',1000000,1000,0);
 
@@ -241,4 +246,5 @@ function removeSlash(symbol) {
 
 module.exports = {
   enterDeltaHedge,
+  executeFuturesOrderWithWebsocket
 };
