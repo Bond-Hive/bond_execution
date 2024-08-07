@@ -12,7 +12,10 @@ let handledDeposit = [];
 
 function clearCache() {
   handledDeposit = []; // This resets the cache object
-}
+};
+
+// Global object to manage overhang and USDC carryover by strategy
+let strategyState = {};
 
 // Schedule cache clearing every 5 minutes
 // 300000 milliseconds = 5 minutes
@@ -80,48 +83,51 @@ async function manageDeltaNeutralStrategy(deposit, matchingStrategy, leverageMul
   const [firstSymbol, secondSymbol] = matchingStrategy.symbolSpot.split('/');
   const price = webSocketPriceMonitorUniversal[matchingStrategy.websocket].getPrice();
   const mS = matchingStrategy;
-  let usdtFreeBalance = (await getBinanceBalance(matchingStrategy.futuresExchange, matchingStrategy.subaccount))[firstSymbol].free * price;
 
-  let totalAmountNeeded = deposit.amount; // Total spot amount needed to fully utilize the deposit
+  // Initialize state for the strategy if not already present
+  if (!strategyState[mS.name]) {
+    strategyState[mS.name] = { overhang: 0, usdcCarryover: 0 };
+  }
+
+  let usdtFreeBalance = (await getBinanceBalance(mS.futuresExchange, mS.subaccount))[firstSymbol].free * price;
+  let totalAmountNeeded = deposit.amount + strategyState[mS.name].usdcCarryover; // Adjust amount needed by the USDC carryover
+
+  const clientOrderId = `${mS.name}_${deposit.txid.slice(0, 4)}_${deposit.txid.slice(-4)}`;
+  // add a counter for trade number
 
   // If balance is less than the minimal trade unit, initiate a minimal trade
   if (usdtFreeBalance * leverageMultiplier < mS.minTradeSize) {
     console.log('No sufficient free assets to start trading, initiating minimal trade...');
-
-    const clientOrderId = `${mS.name}_${deposit.txid.slice(0, 4)}_${deposit.txid.slice(-4)}`;
-    let spotAmounToExecute = Number(Number(mS.minTradeSize/price).toFixed(mS.spotDecimals));
-    let spotResult = await executeSpotOrderWithWebsocket(mS.spotExchange, mS.subaccount, mS.symbolSpot, spotAmounToExecute, mS.spotDecimals, 'BUY', 'MARKET', clientOrderId);
-    let transferAmount = spotAmounToExecute; // Assuming transfer of the bought amount
-    let transferResult = await internalFundsTransfer(mS.spotExchange, mS.subaccount, firstSymbol, transferAmount, 'spot', 'delivery');
+    let spotAmountToExecute = Number(Number(mS.minTradeSize / price).toFixed(mS.spotDecimals));
+    await executeSpotOrderWithWebsocket(mS.spotExchange, mS.subaccount, mS.symbolSpot, spotAmountToExecute, mS.spotDecimals, 'BUY', 'MARKET', clientOrderId);
+    await internalFundsTransfer(mS.spotExchange, mS.subaccount, firstSymbol, spotAmountToExecute, 'spot', 'delivery');
+    await executeFuturesOrderWithWebsocket(mS.futuresExchange, mS.subaccount, mS.symbolFuture, 1, mS.futuresDecimals, 'SELL', 'MARKET', clientOrderId);
     usdtFreeBalance = (await getBinanceBalance(mS.futuresExchange, mS.subaccount))[firstSymbol].free * price;
-    let futuresResult = await executeFuturesOrderWithWebsocket(mS.futuresExchange, mS.subaccount, mS.symbolFuture, mS.minTradeSize/mS.minTradeSize, mS.futuresDecimals, 'SELL', 'MARKET', clientOrderId)
-    totalAmountNeeded -= transferAmount*price; // Reduce the total amount needed by the amount executed
-    console.log("totalAmountNeeded",totalAmountNeeded);
+    totalAmountNeeded -= spotAmountToExecute * price;
   }
 
   while (usdtFreeBalance * leverageMultiplier < totalAmountNeeded && totalAmountNeeded > mS.minTradeSize) {
-    let amountToExecute = Math.floor(usdtFreeBalance * leverageMultiplier);
-    console.log(`Executing trade with amount: ${amountToExecute}`);
-    let spotAmounToExecute = Number(Number(amountToExecute/price).toFixed(mS.spotDecimals));
-    let spotResult = await executeSpotOrderWithWebsocket(mS.spotExchange, mS.subaccount, mS.symbolSpot, spotAmounToExecute, mS.spotDecimals, 'BUY', 'MARKET', clientOrderId);
-    let futuresResult = await executeFuturesOrderWithWebsocket(mS.futuresExchange, mS.subaccount, mS.symbolFuture, amountToExecute/mS.minTradeSize, mS.futuresDecimals, 'SELL', 'MARKET', clientOrderId)
-    totalAmountNeeded -= amountToExecute; // Update the totalAmountNeeded after executing part of it
-    let transferAmount = amountToExecute; // Calculate and transfer 100% of the executed amount to continue trades
-    console.log(`Transferring ${transferAmount} from spot to futures to continue trades.`);
-    await internalFundsTransfer(matchingStrategy.spotExchange, matchingStrategy.subaccount, matchingStrategy.symbolSpot, transferAmount, 'spot', 'future');
-    usdtFreeBalance = (await getBinanceBalance(matchingStrategy.futuresExchange, matchingStrategy.subaccount))[firstSymbol].free * price;
+    let spotAmountToExecute = Math.min(Math.floor(usdtFreeBalance * leverageMultiplier / price), totalAmountNeeded / price).toFixed(mS.spotDecimals);
+    let normalizedAmount = Math.floor(spotAmountToExecute / 10**(-mS.spotDecimals)) * 10**(-mS.spotDecimals); // Normalize to nearest min trade unit for spot
+    let futuresContracts = Math.floor((normalizedAmount * price) / mS.minTradeSize);
+    let executedSpotUSD = normalizedAmount * price;
+
+    await executeSpotOrderWithWebsocket(mS.spotExchange, mS.subaccount, mS.symbolSpot, normalizedAmount, mS.spotDecimals, 'BUY', 'MARKET', clientOrderId);
+    await executeFuturesOrderWithWebsocket(mS.futuresExchange, mS.subaccount, mS.symbolFuture, futuresContracts, mS.futuresDecimals, 'SELL', 'MARKET', clientOrderId);
+    
+    totalAmountNeeded -= executedSpotUSD;
+    strategyState[mS.name].overhang += (executedSpotUSD - futuresContracts * mS.minTradeSize);
+    if (strategyState[mS.name].overhang >= mS.minTradeSize || strategyState[mS.name].overhang <= -mS.minTradeSize) {
+      // Adjust the overhang if it's larger than a single future contract unit
+      let adjustContracts = Math.floor(strategyState[mS.name].overhang / mS.minTradeSize);
+      await executeFuturesOrderWithWebsocket(mS.futuresExchange, mS.subaccount, mS.symbolFuture, adjustContracts, mS.futuresDecimals, 'SELL', 'MARKET', clientOrderId);
+      strategyState[mS.name].overhang -= adjustContracts * mS.minTradeSize;
+    }
   }
 
-  // Execute the final trade if the balance suffices for the remaining amount
-  if (usdtFreeBalance * leverageMultiplier >= totalAmountNeeded && totalAmountNeeded > 0) {
-    console.log(`Executing final trade with remaining amount: ${totalAmountNeeded}`);
-    let spotAmounToExecute = Number(Number(totalAmountNeeded/price).toFixed(mS.spotDecimals));
-    let spotResult = await executeSpotOrderWithWebsocket(mS.spotExchange, mS.subaccount, mS.symbolSpot, spotAmounToExecute, mS.spotDecimals, 'BUY', 'MARKET', clientOrderId);
-    let futuresResult = await executeFuturesOrderWithWebsocket(mS.futuresExchange, mS.subaccount, mS.symbolFuture, totalAmountNeeded/mS.minTradeSize, mS.futuresDecimals, 'SELL', 'MARKET', clientOrderId)
-    let transferAmount = spotAmounToExecute; // Calculate and transfer 100% of the executed amount to continue trades
-    console.log(`Transferring ${transferAmount} from spot to futures to continue trades.`);
-    await internalFundsTransfer(matchingStrategy.spotExchange, matchingStrategy.subaccount, matchingStrategy.symbolSpot, transferAmount, 'spot', 'future');
-    usdtFreeBalance = (await getBinanceBalance(matchingStrategy.futuresExchange, matchingStrategy.subaccount))[firstSymbol].free * price;
+  // Handle remaining USDC amount that's below the minimal trade size for futures
+  if (totalAmountNeeded > 0 && totalAmountNeeded < mS.minTradeSize) {
+    strategyState[mS.name].usdcCarryover += totalAmountNeeded;  // Carry over to next round
   }
 
   return "execution successful";
@@ -439,7 +445,7 @@ function calculateProfitPercent(symbolFuture,postExecution = false) {
 }
 
 // if (typeof process.env.LOCAL_WEBSOCKET_STOP === "undefined"){
-  mainFunction();
+  // mainFunction();
 // }
 
 
