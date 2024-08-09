@@ -77,7 +77,7 @@ async function manageDeltaNeutralStrategy(deposit, matchingStrategy, leverageMul
 
   let usdtFreeBalance = (await getBinanceBalance(mS.futuresExchange, mS.subaccount))[firstSymbol].free * price;
   let totalAmountNeeded = deposit.amount + (await getStrategyState(mS.name)).usdcCarryover;
-  const clientOrderId = `${mS.name}_${deposit.txid.slice(0, 4)}_${deposit.txid.slice(-4)}:0`;
+  const clientOrderId = `${mS.name}_${deposit.txid.slice(0, 4)}_${deposit.txid.slice(-4)}`;
 
   if (usdtFreeBalance * leverageMultiplier < mS.minTradeSize) {
     console.log('No sufficient free assets to start trading, initiating minimal trade...');
