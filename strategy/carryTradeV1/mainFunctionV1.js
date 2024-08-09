@@ -84,6 +84,7 @@ async function manageDeltaNeutralStrategy(deposit, matchingStrategy, leverageMul
     let spotAmountToExecute = await ceilToMultiple(mS.spotDecimals, mS.minTradeSize, price, 1, mS.name);
     if (typeof process.env.LOCAL_WEBSOCKET_STOP === "undefined"){
       await executeSpotOrderWithWebsocket(mS.spotExchange, mS.subaccount, mS.symbolSpot, spotAmountToExecute, mS.spotDecimals, 'BUY', 'MARKET', clientOrderId);
+      await sleep(1500); // Sleep for 1.5 sec before processing the next asset
       await internalFundsTransfer(mS.spotExchange, mS.subaccount, firstSymbol, spotAmountToExecute, 'spot', 'delivery');
       await executeFuturesOrderWithWebsocket(mS.futuresExchange, mS.subaccount, mS.symbolFuture, 1, mS.futuresDecimals, 'SELL', 'MARKET', clientOrderId);
     }
@@ -100,6 +101,7 @@ async function manageDeltaNeutralStrategy(deposit, matchingStrategy, leverageMul
     if (typeof process.env.LOCAL_WEBSOCKET_STOP === "undefined"){
       await executeSpotOrderWithWebsocket(mS.spotExchange, mS.subaccount, mS.symbolSpot, spotAmountToExecute, mS.spotDecimals, 'BUY', 'MARKET', clientOrderId);
       await executeFuturesOrderWithWebsocket(mS.futuresExchange, mS.subaccount, mS.symbolFuture, futConToexecute, mS.futuresDecimals, 'SELL', 'MARKET', clientOrderId);
+      await sleep(1500); // Sleep for 1.5 sec before processing the next asset
       await internalFundsTransfer(mS.spotExchange, mS.subaccount, firstSymbol, spotAmountToExecute, 'spot', 'delivery');
     }
     usdtFreeBalance = (await getBinanceBalance(mS.futuresExchange, mS.subaccount))[firstSymbol].free * price;
@@ -121,6 +123,10 @@ const ceilToMultiple = async function(decimals, tradeSize, price, futConToexecut
   return spotSize;
 };
 
+// Sleep function
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 const getStrategyState = async function(name) {
   if (!strategyState[name]) {
