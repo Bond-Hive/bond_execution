@@ -42,16 +42,18 @@ const mainFunction = async () => {
       handledDeposit.push(deposit.txid);  // Record the txId in the global array to avoid future checks
     }
 
-    if (!await checkAssetRelease(deposit.txid)) {
-      console.log('Processing stopped due to insufficient confirm times');
-      return; // Stop processing if confirm times never satisfy the condition
-    }
-
     let treasuryAccount = await getTransactionByHash(deposit.txid);
     let matchingStrategy = Object.values(liveStrategiesObj).find(strategy => strategy.treasuryAddress === treasuryAccount) || null;
     if (!matchingStrategy) {
       console.log("No matching strategy found.");
       return;
+    } else if (matchingStrategy.cexExecution == "false"){
+      console.log("Execution is not enabled");
+      return;
+    }
+    if (!await checkAssetRelease(deposit.txid)) {
+      console.log('Processing stopped due to insufficient confirm times');
+      return; // Stop processing if confirm times never satisfy the condition
     }
     await manageDeltaNeutralStrategy(deposit, matchingStrategy);
     uploadExecutedTransaction(deposit, matchingStrategy, "NA", deposit.amount);
@@ -73,48 +75,42 @@ async function manageDeltaNeutralStrategy(deposit, matchingStrategy, leverageMul
   const price = webSocketPriceMonitorUniversal[matchingStrategy.websocket].getPrice();
   const mS = matchingStrategy;
 
-  // Initialize state for the strategy if not already present
-  if (!strategyState[mS.name]) {
-    strategyState[mS.name] = { overhang: 0, usdcCarryover: 0 };
-  }
+  let usdtFreeBalance = (await getBinanceBalance(mS.futuresExchange, mS.subaccount))[firstSymbol].free * price;
+  let totalAmountNeeded = deposit.amount + (await getStrategyState(mS.name)).usdcCarryover;
+  const clientOrderId = `${mS.name}_${deposit.txid.slice(0, 4)}_${deposit.txid.slice(-4)}:0`;
 
-  try {
-    let usdtFreeBalance = (await getBinanceBalance(mS.futuresExchange, mS.subaccount))[firstSymbol].free * price;
-    let totalAmountNeeded = deposit.amount + (await getStrategyState(mS.name)).usdcCarryover;
-    console.log("usdcCarryover",(await getStrategyState(mS.name)).usdcCarryover);
-    const clientOrderId = `${mS.name}_${deposit.txid.slice(0, 4)}_${deposit.txid.slice(-4)}`;
-
-    if (usdtFreeBalance * leverageMultiplier < mS.minTradeSize) {
-      console.log('No sufficient free assets to start trading, initiating minimal trade...');
-      let spotAmountToExecute = await ceilToMultiple(mS.spotDecimals, mS.minTradeSize, price, 1, mS.name);
+  if (usdtFreeBalance * leverageMultiplier < mS.minTradeSize) {
+    console.log('No sufficient free assets to start trading, initiating minimal trade...');
+    let spotAmountToExecute = await ceilToMultiple(mS.spotDecimals, mS.minTradeSize, price, 1, mS.name);
+    if (typeof process.env.LOCAL_WEBSOCKET_STOP === "undefined"){
       await executeSpotOrderWithWebsocket(mS.spotExchange, mS.subaccount, mS.symbolSpot, spotAmountToExecute, mS.spotDecimals, 'BUY', 'MARKET', clientOrderId);
       await internalFundsTransfer(mS.spotExchange, mS.subaccount, firstSymbol, spotAmountToExecute, 'spot', 'delivery');
       await executeFuturesOrderWithWebsocket(mS.futuresExchange, mS.subaccount, mS.symbolFuture, 1, mS.futuresDecimals, 'SELL', 'MARKET', clientOrderId);
-      usdtFreeBalance = (await getBinanceBalance(mS.futuresExchange, mS.subaccount))[firstSymbol].free * price;
-      totalAmountNeeded -= mS.minTradeSize;
     }
+    usdtFreeBalance = (await getBinanceBalance(mS.futuresExchange, mS.subaccount))[firstSymbol].free * price;
+    totalAmountNeeded -= mS.minTradeSize;
+  }
 
-    while (totalAmountNeeded > mS.minTradeSize) {
-      let totalAmountFutCon = Math.floor(totalAmountNeeded / mS.minTradeSize);
-      let feeBalanceFutCon = Math.floor(usdtFreeBalance * leverageMultiplier / mS.minTradeSize);
-      let usdToExecute = Math.min(feeBalanceFutCon, totalAmountFutCon) * mS.minTradeSize;
-      let futConToexecute = usdToExecute / mS.minTradeSize;
-      let spotAmountToExecute = await ceilToMultiple(mS.spotDecimals, mS.minTradeSize, price, futConToexecute, mS.name);
+  while (totalAmountNeeded > mS.minTradeSize) {
+    let totalAmountFutCon = Math.floor(totalAmountNeeded / mS.minTradeSize);
+    let feeBalanceFutCon = Math.floor(usdtFreeBalance * leverageMultiplier / mS.minTradeSize);
+    let usdToExecute = Math.min(feeBalanceFutCon, totalAmountFutCon) * mS.minTradeSize;
+    let futConToexecute = usdToExecute / mS.minTradeSize;
+    let spotAmountToExecute = await ceilToMultiple(mS.spotDecimals, mS.minTradeSize, price, futConToexecute, mS.name);
+    if (typeof process.env.LOCAL_WEBSOCKET_STOP === "undefined"){
       await executeSpotOrderWithWebsocket(mS.spotExchange, mS.subaccount, mS.symbolSpot, spotAmountToExecute, mS.spotDecimals, 'BUY', 'MARKET', clientOrderId);
       await executeFuturesOrderWithWebsocket(mS.futuresExchange, mS.subaccount, mS.symbolFuture, futConToexecute, mS.futuresDecimals, 'SELL', 'MARKET', clientOrderId);
       await internalFundsTransfer(mS.spotExchange, mS.subaccount, firstSymbol, spotAmountToExecute, 'spot', 'delivery');
-      usdtFreeBalance = (await getBinanceBalance(mS.futuresExchange, mS.subaccount))[firstSymbol].free * price;
-      totalAmountNeeded -= futConToexecute * mS.minTradeSize;
     }
-
-    if (totalAmountNeeded > 0 && totalAmountNeeded < mS.minTradeSize) {
-      updateStrategyState(mS.name, totalAmountNeeded, "usdcCarryover");
-    }
-    return "execution successful";
-  } catch (error) {
-    console.error(`An error occurred: ${error.message}`);
-    throw error;  // Optionally re-throw the error to handle it further up the call stack.
+    usdtFreeBalance = (await getBinanceBalance(mS.futuresExchange, mS.subaccount))[firstSymbol].free * price;
+    totalAmountNeeded -= futConToexecute * mS.minTradeSize;
   }
+
+  if (totalAmountNeeded > 0 && totalAmountNeeded < mS.minTradeSize) {
+    updateStrategyState(mS.name, totalAmountNeeded, "usdcCarryover");
+  }
+  return "execution successful";
+
 }
 
 const ceilToMultiple = async function(decimals, tradeSize, price, futConToexecute, name) {
@@ -134,7 +130,7 @@ const getStrategyState = async function(name) {
     if (!dataCollection) {
       strategyState[name] = { overhang: 0, usdcCarryover: 0 };
       return strategyState[name]; // No document found
-    }
+    };
     strategyState[name] = dataCollection.property;
     return dataCollection.property;
   } else {
