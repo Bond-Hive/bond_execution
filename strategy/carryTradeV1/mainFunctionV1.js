@@ -37,6 +37,7 @@ const mainFunction = async () => {
       return;
     } else if (await checkExecutedTransaction(deposit.txid)) {
       console.log('Transaction already executed');
+      return;
     } else {
       handledDeposit.push(deposit.txid);  // Record the txId in the global array to avoid future checks
     }
@@ -52,24 +53,12 @@ const mainFunction = async () => {
       console.log("No matching strategy found.");
       return;
     }
-
     await manageDeltaNeutralStrategy(deposit, matchingStrategy);
-
     uploadExecutedTransaction(deposit, matchingStrategy, "NA", deposit.amount);
   };
 
-  const processSpotTransactions = async (strategy, subaccount, symbolSpot, amount, spotDecimals) => {
-    executeSpotOrderWithWebsocket(strategy, subaccount, symbolSpot, amount, spotDecimals, "BUY", "MARKET", `${clientOrderId}-20`);
-    internalFundsTransfer(strategy, subaccount, symbolSpot, amount, 'spot', 'future');
-  };
-
-  const processFuturesTransactions = async (spotExchange, futuresExchange, subaccount, clientOrderId, symbolSpot, symbolFuture, amount, spotDecimals, futuresDecimals, profitPercent) => {
-    enterDeltaHedge(spotExchange, futuresExchange, subaccount, clientOrderId, symbolSpot, symbolFuture, amount, spotDecimals, futuresDecimals, 1, profitPercent * 100);
-    internalFundsTransfer(spotExchange, subaccount, symbolSpot, amount * 0.8, 'spot', 'future');
-  };
-
   const onMessageCallback = async (response) => {
-    if (response.e !== "outboundAccountPosition") return;  // need to change this to balanceUpdate on main, testing done with 'outboundAccountPosition'
+    if (response.e !== "balanceUpdate") return;  // need to change this to balanceUpdate on main, testing done with 'outboundAccountPosition'
     const liveStrategiesObj = await getLiveStrategiesMongo();
     const deposits = await getBinanceDeposits('binance', 'Test', 'USDC', getUnixTimestampForLastDay());
     for (let deposit of deposits) {
@@ -79,7 +68,7 @@ const mainFunction = async () => {
   webSocketOrdersBinance('Test', onMessageCallback);
 };
 
-async function manageDeltaNeutralStrategy(deposit, matchingStrategy, leverageMultiplier = 5) {
+async function manageDeltaNeutralStrategy(deposit, matchingStrategy, leverageMultiplier = 3) {
   const [firstSymbol, secondSymbol] = matchingStrategy.symbolSpot.split('/');
   const price = webSocketPriceMonitorUniversal[matchingStrategy.websocket].getPrice();
   const mS = matchingStrategy;
@@ -89,51 +78,89 @@ async function manageDeltaNeutralStrategy(deposit, matchingStrategy, leverageMul
     strategyState[mS.name] = { overhang: 0, usdcCarryover: 0 };
   }
 
-  let usdtFreeBalance = (await getBinanceBalance(mS.futuresExchange, mS.subaccount))[firstSymbol].free * price;
-  let totalAmountNeeded = deposit.amount + strategyState[mS.name].usdcCarryover; // Adjust amount needed by the USDC carryover
+  try {
+    let usdtFreeBalance = (await getBinanceBalance(mS.futuresExchange, mS.subaccount))[firstSymbol].free * price;
+    let totalAmountNeeded = deposit.amount + (await getStrategyState(mS.name)).usdcCarryover;
+    console.log("usdcCarryover",(await getStrategyState(mS.name)).usdcCarryover);
+    const clientOrderId = `${mS.name}_${deposit.txid.slice(0, 4)}_${deposit.txid.slice(-4)}`;
 
-  const clientOrderId = `${mS.name}_${deposit.txid.slice(0, 4)}_${deposit.txid.slice(-4)}`;
-  // add a counter for trade number
-
-  // If balance is less than the minimal trade unit, initiate a minimal trade
-  if (usdtFreeBalance * leverageMultiplier < mS.minTradeSize) {
-    console.log('No sufficient free assets to start trading, initiating minimal trade...');
-    let spotAmountToExecute = Number(Number(mS.minTradeSize / price).toFixed(mS.spotDecimals));
-    await executeSpotOrderWithWebsocket(mS.spotExchange, mS.subaccount, mS.symbolSpot, spotAmountToExecute, mS.spotDecimals, 'BUY', 'MARKET', clientOrderId);
-    await internalFundsTransfer(mS.spotExchange, mS.subaccount, firstSymbol, spotAmountToExecute, 'spot', 'delivery');
-    await executeFuturesOrderWithWebsocket(mS.futuresExchange, mS.subaccount, mS.symbolFuture, 1, mS.futuresDecimals, 'SELL', 'MARKET', clientOrderId);
-    usdtFreeBalance = (await getBinanceBalance(mS.futuresExchange, mS.subaccount))[firstSymbol].free * price;
-    totalAmountNeeded -= spotAmountToExecute * price;
-  }
-
-  while (usdtFreeBalance * leverageMultiplier < totalAmountNeeded && totalAmountNeeded > mS.minTradeSize) {
-    let spotAmountToExecute = Math.min(Math.floor(usdtFreeBalance * leverageMultiplier / price), totalAmountNeeded / price).toFixed(mS.spotDecimals);
-    let normalizedAmount = Math.floor(spotAmountToExecute / 10**(-mS.spotDecimals)) * 10**(-mS.spotDecimals); // Normalize to nearest min trade unit for spot
-    let futuresContracts = Math.floor((normalizedAmount * price) / mS.minTradeSize);
-    let executedSpotUSD = normalizedAmount * price;
-
-    await executeSpotOrderWithWebsocket(mS.spotExchange, mS.subaccount, mS.symbolSpot, normalizedAmount, mS.spotDecimals, 'BUY', 'MARKET', clientOrderId);
-    await executeFuturesOrderWithWebsocket(mS.futuresExchange, mS.subaccount, mS.symbolFuture, futuresContracts, mS.futuresDecimals, 'SELL', 'MARKET', clientOrderId);
-    
-    totalAmountNeeded -= executedSpotUSD;
-    strategyState[mS.name].overhang += (executedSpotUSD - futuresContracts * mS.minTradeSize);
-    if (strategyState[mS.name].overhang >= mS.minTradeSize || strategyState[mS.name].overhang <= -mS.minTradeSize) {
-      // Adjust the overhang if it's larger than a single future contract unit
-      let adjustContracts = Math.floor(strategyState[mS.name].overhang / mS.minTradeSize);
-      await executeFuturesOrderWithWebsocket(mS.futuresExchange, mS.subaccount, mS.symbolFuture, adjustContracts, mS.futuresDecimals, 'SELL', 'MARKET', clientOrderId);
-      strategyState[mS.name].overhang -= adjustContracts * mS.minTradeSize;
+    if (usdtFreeBalance * leverageMultiplier < mS.minTradeSize) {
+      console.log('No sufficient free assets to start trading, initiating minimal trade...');
+      let spotAmountToExecute = await ceilToMultiple(mS.spotDecimals, mS.minTradeSize, price, 1, mS.name);
+      await executeSpotOrderWithWebsocket(mS.spotExchange, mS.subaccount, mS.symbolSpot, spotAmountToExecute, mS.spotDecimals, 'BUY', 'MARKET', clientOrderId);
+      await internalFundsTransfer(mS.spotExchange, mS.subaccount, firstSymbol, spotAmountToExecute, 'spot', 'delivery');
+      await executeFuturesOrderWithWebsocket(mS.futuresExchange, mS.subaccount, mS.symbolFuture, 1, mS.futuresDecimals, 'SELL', 'MARKET', clientOrderId);
+      usdtFreeBalance = (await getBinanceBalance(mS.futuresExchange, mS.subaccount))[firstSymbol].free * price;
+      totalAmountNeeded -= mS.minTradeSize;
     }
-  }
 
-  // Handle remaining USDC amount that's below the minimal trade size for futures
-  if (totalAmountNeeded > 0 && totalAmountNeeded < mS.minTradeSize) {
-    strategyState[mS.name].usdcCarryover += totalAmountNeeded;  // Carry over to next round
-  }
+    while (totalAmountNeeded > mS.minTradeSize) {
+      let totalAmountFutCon = Math.floor(totalAmountNeeded / mS.minTradeSize);
+      let feeBalanceFutCon = Math.floor(usdtFreeBalance * leverageMultiplier / mS.minTradeSize);
+      let usdToExecute = Math.min(feeBalanceFutCon, totalAmountFutCon) * mS.minTradeSize;
+      let futConToexecute = usdToExecute / mS.minTradeSize;
+      let spotAmountToExecute = await ceilToMultiple(mS.spotDecimals, mS.minTradeSize, price, futConToexecute, mS.name);
+      await executeSpotOrderWithWebsocket(mS.spotExchange, mS.subaccount, mS.symbolSpot, spotAmountToExecute, mS.spotDecimals, 'BUY', 'MARKET', clientOrderId);
+      await executeFuturesOrderWithWebsocket(mS.futuresExchange, mS.subaccount, mS.symbolFuture, futConToexecute, mS.futuresDecimals, 'SELL', 'MARKET', clientOrderId);
+      await internalFundsTransfer(mS.spotExchange, mS.subaccount, firstSymbol, spotAmountToExecute, 'spot', 'delivery');
+      usdtFreeBalance = (await getBinanceBalance(mS.futuresExchange, mS.subaccount))[firstSymbol].free * price;
+      totalAmountNeeded -= futConToexecute * mS.minTradeSize;
+    }
 
-  return "execution successful";
+    if (totalAmountNeeded > 0 && totalAmountNeeded < mS.minTradeSize) {
+      updateStrategyState(mS.name, totalAmountNeeded, "usdcCarryover");
+    }
+    return "execution successful";
+  } catch (error) {
+    console.error(`An error occurred: ${error.message}`);
+    throw error;  // Optionally re-throw the error to handle it further up the call stack.
+  }
 }
 
+const ceilToMultiple = async function(decimals, tradeSize, price, futConToexecute, name) {
+  const spotMultiple = (1 / (10 ** decimals)) * price;
+  const overhang = (await getStrategyState(name)).overhang * price;
+  const spotSize = Math.ceil((futConToexecute * tradeSize - overhang) / spotMultiple) / (10 ** decimals);
+  updateStrategyState(name, ((futConToexecute * tradeSize - overhang) % spotMultiple) / price, "overhang");
+  return spotSize;
+};
 
+
+const getStrategyState = async function(name) {
+  if (!strategyState[name]) {
+    const dbName = 'bond-hive'; 
+    const collectionName = 'executionOverhangs'; 
+    let dataCollection = await dbMongoose.findOne(dbName, collectionName, "name", name);
+    if (!dataCollection) {
+      strategyState[name] = { overhang: 0, usdcCarryover: 0 };
+      return strategyState[name]; // No document found
+    }
+    strategyState[name] = dataCollection.property;
+    return dataCollection.property;
+  } else {
+    return strategyState[name];
+  }
+};
+
+const updateStrategyState  = async function(name,value,property) {
+  strategyState[name][property] = value;
+  const dbName = 'bond-hive'; 
+  const collectionName = 'executionOverhangs';
+  let modelName = 'executionOverhangs';
+  let dataCollection = await dbMongoose.findOne(dbName, collectionName, "name", name);
+  if (!dataCollection) {
+    const newRecord = {
+      name: name,
+      property: { overhang: 0, usdcCarryover: 0 }
+    }
+    await dbMongoose.insertOne(dbName, collectionName, modelName, newRecord);
+    strategyState[name] = newRecord.property;
+    return strategyState[name];
+  };
+  const newRecord = dataCollection;
+  newRecord.property[property] = value;
+  await dbMongoose.replaceOne(dbName, collectionName, modelName, "_id",dataCollection._id,newRecord);
+};
 
 // Check for the funds have been deposited into the Binance wallet
 const getBinanceDeposits = async function(exchangeName,subaccount,assetName,since,limit=10) {
@@ -233,29 +260,6 @@ const internalFundsTransfer = async function(exchangeName,subaccount,assetName,a
   return await cex.transfer(assetName, amount, fromAccount, toAccount)
   // Sample use --> internalFundsTransfer('binanceusdm','Test',"USDT",1000,'spot','future'); // to list all options use console.log(cex.options['accountsByType']
 };
-
-
-const getBinanceInternalTransfers = async function(exchangeName,subaccount,assetName,since,limit=50) { // --> Sample for Frank
-  let cex = execution.initializeCcxt(exchangeName,subaccount);
-  console.log(await cex.fetchTransfers(assetName, since, limit));
-  // Sample use --> getBinanceTransfers('binanceusdm','Test7','USDT',1685111342000);
-  /* Payload for getBinanceTransfers
-  [
-  {
-    info: { ... },
-    id: "93920432048",
-    timestamp: 1646764072000,
-    datetime: "2022-03-08T18:27:52.000Z",
-    currency: "USDT",
-    amount: 11.31,
-    fromAccount: "spot",
-    toAccount: "future",
-    status: "ok"
-  }
-  ]
-  */
-};
-
 
 async function getLiveStrategiesMongo() {
   const dbName = 'bond-hive'; 
@@ -408,10 +412,10 @@ async function uploadExecutedTransaction(depositResults,executedLiveStrategy,pro
     network: depositResults.network,
     currency: depositResults.currency,
     amount: amount,
-    // profitPercent: profitPercent*100,
-    // profitPercentPostExecution: calculateProfitPercent(executedLiveStrategy.symbolFuture,true)*100,
-    // APY: averageYieldsGlobal[executedLiveStrategy.symbolFuture]*100,
-    // APYPostexecution: averageYieldsPostExecutionGlobal[executedLiveStrategy.symbolFuture]*100,
+    profitPercent: calculateProfitPercent(executedLiveStrategy.symbolFuture)*100,
+    profitPercentPostExecution: calculateProfitPercent(executedLiveStrategy.symbolFuture,true)*100,
+    APY: averageYieldsGlobal[executedLiveStrategy.symbolFuture]*100,
+    APYPostexecution: averageYieldsPostExecutionGlobal[executedLiveStrategy.symbolFuture]*100,
   };
   await execution.dbMongoose.insertOne(dbName, collectionName, modelName, newRecord);
 }
@@ -444,9 +448,9 @@ function calculateProfitPercent(symbolFuture,postExecution = false) {
   return Math.abs(absolutePercent); // Ensure it's an absolute value
 }
 
-// if (typeof process.env.LOCAL_WEBSOCKET_STOP === "undefined"){
-  // mainFunction();
-// }
+if (typeof process.env.LOCAL_WEBSOCKET_STOP === "undefined"){
+  mainFunction();
+}
 
 
 module.exports = {
