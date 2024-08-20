@@ -1,13 +1,13 @@
-name: Fund Frontend Action
+name: Bond Execution
 
 on:
   push:
     branches: 
-      - "frontend-serve"
+      - "main"
 
 env:
-  DOCKER_REGISTRY_URL: registry.digitalocean.com/fundregistry
-  IMAGE_NAME: frontend-serve
+  DOCKER_REGISTRY_URL: registry.digitalocean.com/treasury
+  IMAGE_NAME: bondhive-bond-execution
   TAG: ${{ github.run_number }}
 
 jobs:
@@ -18,7 +18,7 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Generate env file
-      run: echo "${{ secrets.ENV3 }}" > .env
+      run: echo "${{ secrets.ENV }}" > .env
 
     - name: Generate npmrc file
       run: echo "${{ secrets.NPMRC }}" > .npmrc
@@ -30,7 +30,7 @@ jobs:
         docker push ${{ env.DOCKER_REGISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
 
   deploy:
-    runs-on: [self-hosted, FE1]
+    runs-on: self-hosted
     needs: build
     steps:
     - name: Stop and remove older containers
