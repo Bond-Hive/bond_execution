@@ -316,10 +316,10 @@ const oracleFunction = async (contractAddress, secretKey) => {
   try {
     // Fetch the live strategies from MongoDB
     let liveStrategiesObj = await getLiveStrategiesMongo();
-    let operationValue;
+    let operationValue, rpcServerUrl;
 
     // Find the strategy with the matching symbolFuture
-    let toSearch = Object.keys(liveStrategiesObj).find(key => liveStrategiesObj[key].contractAddress === contractAddress);
+    let toSearch = Object.keys(liveStrategiesObj).find(key => liveStrategiesObj[key].contractAddress === contractAddress); //++ ADD to mongoDB
 
     // If no matching strategy is found, exit the function
     if (!toSearch) {
@@ -329,45 +329,23 @@ const oracleFunction = async (contractAddress, secretKey) => {
 
     // Extract the contract address and determine the RPC server URL
     let network = liveStrategiesObj[toSearch].oracleNetwork;
-    let rpcServerUrl = network === "testnet"
-      ? "https://soroban-testnet.stellar.org:443"
-      : liveStrategiesObj[toSearch].rpcurl; // Modify this line if you have URLs for other networks
+    switch(network) {
+      case "testnet":
+        rpcServerUrl = "https://soroban-testnet.stellar.org:443";
+        secretKey = process.env.STELLAR_TEST_KIYF;
+        break;
+      case "testnet_sonic":
+        rpcServerUrl = "https://rpc.testnet.soniclabs.com";
+        secretKey = process.env.SONIC_TESTNET_WALLET;
+        break;
+      default:
+        rpcServerUrl = liveStrategiesObj[toSearch].rpcurl;
+        break;
+    }
 
     // Assume averageDiscountFactorPostExecutionGlobal is available globally
-    operationValue = Math.round(Number(averageDiscountFactorPostExecutionGlobal[liveStrategiesObj[toSearch].symbolFuture] / 100) * Math.pow(10, 7));
+    operationValue = Math.round(Number(averageDiscountFactorPostExecutionGlobal[liveStrategiesObj[toSearch].symbolFuture] / 100) * Math.pow(10, liveStrategiesObj[toSearch].decimals));
     console.log("quote value", operationValue);
-    let operationValueType = "i128";
-    secretKey = secretKey || (network === "testnet" ? process.env.STELLAR_TEST_KIYF : process.env.STELLAR_PUB_ORACLE_DEPLOYER);
-
-    const invokeAndExecute = () => {
-      invokeFunction({
-        secretKey,
-        rpcServerUrl,
-        contractAddress,
-        operationName: "quote",
-        network
-      }).then(quote_value => {
-        console.log("quote_value: ", quote_value);
-
-        if (quote_value === BigInt(0)) {
-          console.log("quote_value is zero, updating value");
-          // Execute the operation to set the quote value
-          executeOracleDiscountFactor({
-            secretKey,
-            rpcServerUrl,
-            contractAddress,
-            operationName: "set_quote",
-            operationValue,
-            operationValueType,
-            network
-          });
-        }
-      }).catch(error => {
-        console.error("Error invoking function to get quote value:", error);
-      }).finally(() => {
-        executionTracker[contractAddress].lastExecutionTime = Date.now();
-      });
-    };
 
     if (!executionTracker[contractAddress]) {
       executionTracker[contractAddress] = {
@@ -381,7 +359,7 @@ const oracleFunction = async (contractAddress, secretKey) => {
     if (currentTime - lastExecutionTime > 280 * 1000) {
       // If more than 280 seconds have passed since the last execution, reset the timer and execute
       executionTracker[contractAddress].lastExecutionTime = currentTime;
-      invokeAndExecute();
+      invokeAndExecute(secretKey,rpcServerUrl,contractAddress,network,operationValue);
     }
 
     // Return immediately with the operation value as a string
@@ -391,10 +369,39 @@ const oracleFunction = async (contractAddress, secretKey) => {
     throw error;
   }
 };
-
-
 // Sample usage, assuming "BTC/USDT_240628" is a valid symbolFuture in liveStrategiesObj
 // oracleFunction("BTC/USDT_240628");
+
+const invokeAndExecute = (secretKey,rpcServerUrl,contractAddress,network,operationValue) => {
+  invokeFunction({
+    secretKey,
+    rpcServerUrl,
+    contractAddress,
+    operationName: "quote",
+    network
+  }).then(quote_value => {
+    console.log("quote_value: ", quote_value);
+
+    if (quote_value === BigInt(0)) {
+      console.log("quote_value is zero, updating value");
+      // Execute the operation to set the quote value
+      executeOracleDiscountFactor({
+        secretKey,
+        rpcServerUrl,
+        contractAddress,
+        operationName: "set_quote",
+        operationValue,
+        operationValueType: "i128",
+        network
+      });
+    }
+  }).catch(error => {
+    console.error("Error invoking function to get quote value:", error);
+  }).finally(() => {
+    executionTracker[contractAddress].lastExecutionTime = Date.now();
+  });
+};
+
 
 async function uploadExecutedTransaction(depositResults,executedLiveStrategy,profitPercent,amount) {
   const dbName = 'bond-hive'; 
