@@ -6,6 +6,7 @@ const { dbMongoose } = require('../../main/services/execution-libraries/index');
 const { averageYieldsGlobal,webSocketConnections,averageYieldsPostExecutionGlobal, averageDiscountFactorPostExecutionGlobal } = require('./yieldDisplay'); // Adjust the path as necessary
 const { executeOracleDiscountFactor, invokeFunction } = require('./oracle_discountFactor'); // Adjust the path as necessary
 const treasury_functions = require('./treasury_operations');
+const {bhVaultGetQuote,bhVaultSetQuote} = require('./web3Queries');
 const executionTracker = {};
 const webSocketPriceMonitorUniversal = require('../../main/streams/priceStreams'); // Price Websocket input for sharing  the particular asset prices
 let handledDeposit = [];
@@ -316,15 +317,22 @@ const oracleFunction = async (contractAddress, secretKey) => {
   try {
     // Fetch the live strategies from MongoDB
     let liveStrategiesObj = await getLiveStrategiesMongo();
-    let operationValue, rpcServerUrl;
+    let operationValue, rpcServerUrl, productId;
 
-    // Find the strategy with the matching symbolFuture
-    let toSearch = Object.keys(liveStrategiesObj).find(key => liveStrategiesObj[key].contractAddress === contractAddress); //++ ADD to mongoDB
-
+    // Find the strategy with the matching contractAddress
+    let toSearch = Object.keys(liveStrategiesObj).find(key => liveStrategiesObj[key].contractAddress === contractAddress);
+    
     // If no matching strategy is found, exit the function
     if (!toSearch) {
-      console.error("No matching strategy found for the given symbolFuture.");
-      return { error: "No matching strategy found for the given symbolFuture." };
+      console.error("No matching strategy found for the given contract address.");
+      return { error: "No matching strategy found for the given contract address." };
+    }
+
+    // Check if toSearch contains a '/', and split into contractAddress and productId if so
+    if (contractAddress.includes('/')) {
+      let extractedValues = contractAddress.split('/');
+      contractAddress = extractedValues[0];
+      productId = extractedValues[1];
     }
 
     // Extract the contract address and determine the RPC server URL
@@ -343,23 +351,22 @@ const oracleFunction = async (contractAddress, secretKey) => {
         break;
     }
 
-    // Assume averageDiscountFactorPostExecutionGlobal is available globally
+    // Calculate operationValue
     operationValue = Math.round(Number(averageDiscountFactorPostExecutionGlobal[liveStrategiesObj[toSearch].symbolFuture] / 100) * Math.pow(10, liveStrategiesObj[toSearch].decimals));
     console.log("quote value", operationValue);
 
-    if (!executionTracker[contractAddress]) {
-      executionTracker[contractAddress] = {
-        lastExecutionTime: 0
-      };
+    // Track execution
+    if (!executionTracker[toSearch]) {
+      executionTracker[toSearch] = { lastExecutionTime: 0 };
     }
 
     const currentTime = Date.now();
-    const { lastExecutionTime } = executionTracker[contractAddress];
+    const { lastExecutionTime } = executionTracker[toSearch];
 
     if (currentTime - lastExecutionTime > 280 * 1000) {
       // If more than 280 seconds have passed since the last execution, reset the timer and execute
-      executionTracker[contractAddress].lastExecutionTime = currentTime;
-      invokeAndExecute(secretKey,rpcServerUrl,contractAddress,network,operationValue);
+      executionTracker[toSearch].lastExecutionTime = currentTime;
+      invokeAndExecute(secretKey, rpcServerUrl, contractAddress, productId, network, operationValue,toSearch);
     }
 
     // Return immediately with the operation value as a string
@@ -372,15 +379,17 @@ const oracleFunction = async (contractAddress, secretKey) => {
 // Sample usage, assuming "BTC/USDT_240628" is a valid symbolFuture in liveStrategiesObj
 // oracleFunction("BTC/USDT_240628");
 
-const invokeAndExecute = (secretKey,rpcServerUrl,contractAddress,network,operationValue) => {
-  invokeFunction({
-    secretKey,
-    rpcServerUrl,
-    contractAddress,
-    operationName: "quote",
-    network
-  }).then(quote_value => {
-    console.log("quote_value: ", quote_value);
+const invokeAndExecute = (secretKey,rpcServerUrl,contractAddress,productId,network,operationValue,toSearch) => {
+  if (network === "testnet") {
+    // Proceed with the current logic only for "testnet"
+    invokeFunction({
+      secretKey,
+      rpcServerUrl,
+      contractAddress,
+      operationName: "quote",
+      network
+    }).then(quote_value => {
+      console.log("quote_value: ", quote_value);
 
     if (quote_value === BigInt(0)) {
       console.log("quote_value is zero, updating value");
@@ -398,8 +407,33 @@ const invokeAndExecute = (secretKey,rpcServerUrl,contractAddress,network,operati
   }).catch(error => {
     console.error("Error invoking function to get quote value:", error);
   }).finally(() => {
-    executionTracker[contractAddress].lastExecutionTime = Date.now();
+    executionTracker[toSearch].lastExecutionTime = Date.now();
   });
+  } else if (network === "testnet_sonic") {
+    bhVaultGetQuote(
+      rpcServerUrl,
+      contractAddress,
+      productId
+    ).then(quote_value => {
+      console.log("quote_value: ", quote_value);
+      console.log("quote_value == 0", quote_value == 0);
+      // if (quote_value == 0) {
+        console.log("quote_value is zero, updating value");
+        // Execute the operation to set the quote value
+        bhVaultSetQuote(
+          secretKey,
+          rpcServerUrl,
+          contractAddress,
+          productId,
+          String(operationValue),
+        );
+      // }
+    }).catch(error => {
+      console.error("Error invoking function to get quote value:", error);
+    }).finally(() => {
+      executionTracker[toSearch].lastExecutionTime = Date.now();
+    });
+  }
 };
 
 

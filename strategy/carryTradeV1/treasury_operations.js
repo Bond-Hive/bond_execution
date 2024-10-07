@@ -37,6 +37,10 @@ async function checkTreasury(contractAddress = null) {
   // Iterate over each strategy obtained from MongoDB or the single provided strategy
   for (const strategy of Object.values(strategies)) {
 
+    if (!strategy.oracleNetwork || strategy.oracleNetwork !== 'publicnet') {
+      continue; // Skip processing if oracleNetwork is not 'publicnet'
+    }
+    
     if (processedAddresses.has(strategy.contractAddress)) {
       console.log(`Strategy already processed for address ${strategy.contractAddress}`);
       continue; // Skip this iteration if already processed
