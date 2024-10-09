@@ -348,6 +348,7 @@ const oracleFunction = async (contractAddress, secretKey) => {
         break;
       default:
         rpcServerUrl = liveStrategiesObj[toSearch].rpcurl;
+        secretKey = process.env.STELLAR_PUB_ORACLE_DEPLOYER;
         break;
     }
 
@@ -380,7 +381,7 @@ const oracleFunction = async (contractAddress, secretKey) => {
 // oracleFunction("BTC/USDT_240628");
 
 const invokeAndExecute = (secretKey,rpcServerUrl,contractAddress,productId,network,operationValue,toSearch) => {
-  if (network === "testnet") {
+  if (network === "testnet" || network === "publicnet") {
     // Proceed with the current logic only for "testnet"
     invokeFunction({
       secretKey,
