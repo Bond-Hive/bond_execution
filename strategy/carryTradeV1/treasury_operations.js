@@ -50,39 +50,42 @@ async function checkTreasury(contractAddress = null) {
     processedAddresses.add(strategy.contractAddress);
 
     // Fetch events for each contract address starting from the calculated ledger
-    const events = await fetchEvents(strategy.contractAddress, startLedger);
+    // const events = await fetchEvents(strategy.bondToken, startLedger);
 
-    if (!events || events.length === 0) {
-      console.log(`No events found for strategy ${strategy.contractAddress}.`);
-      continue; // Skip to the next iteration of the loop if no events were fetched
-    }
+    // if (!events || events.length === 0) {
+    //   console.log(`No events found for strategy ${strategy.contractAddress}.`);
+    //   continue; // Skip to the next iteration of the loop if no events were fetched
+    // }
 
     // Compare each event fetched to recorded transfers and already recorded new events
-    for (const event of events) {
-      // Filter for events where topics are "SHARES minted"
-      if (event.topics === "SHARES minted") {
-        let isRecorded = executedTransfers && executedTransfers.find(et =>
-          et.ledgerNumber === event.ledgerNumber &&
-          et.contractId === event.contractId &&
-          et.date === event.date &&
-          et.topics === event.topics
-        );
+    // console.log("events",events);
+    // for (const event of events) {
+    //   // Filter for events where topics are "SHARES minted"
+    //   console.log("events",event);
+    //   console.log("event.topics",event.topics);
+    //   if (event.topics === "SHARES minted") {
+    //     let isRecorded = executedTransfers && executedTransfers.find(et =>
+    //       et.ledgerNumber === event.ledgerNumber &&
+    //       et.contractId === event.contractId &&
+    //       et.date === event.date &&
+    //       et.topics === event.topics
+    //     );
 
-        let isAlreadyListed = unrecordedEvents.find(ue =>
-          ue.ledgerNumber === event.ledgerNumber &&
-          ue.contractId === event.contractId &&
-          ue.date === event.date &&
-          ue.topics === event.topics
-        );
+    //     let isAlreadyListed = unrecordedEvents.find(ue =>
+    //       ue.ledgerNumber === event.ledgerNumber &&
+    //       ue.contractId === event.contractId &&
+    //       ue.date === event.date &&
+    //       ue.topics === event.topics
+    //     );
 
-        if (!isRecorded && !isAlreadyListed) {
-          await uploadTreasuryTransfers(event);
-          unrecordedEvents.push(event);
-        }
-      }
-    }
+    //     if (!isRecorded && !isAlreadyListed) {
+    //       await uploadTreasuryTransfers(event);
+    //       unrecordedEvents.push(event);
+    //     }
+    //   }
+    // }
 
-    if (unrecordedEvents.length > 0) {
+    // if (unrecordedEvents.length > 0) {
       // Get the strategy name or use the function to retrieve it if not present
       let strategyName = strategy.name ? strategy.name.toUpperCase() : (await getStrategyName(strategy.contractAddress)).toUpperCase();
     
@@ -97,10 +100,9 @@ async function checkTreasury(contractAddress = null) {
       }
        
       try {
-        // Assuming retrieveAccountAndFilterBalanceFromSecret is an async function that returns the balance
         let usdcBalance = (await retrieveAccountAndFilterBalanceFromSecret(secretKey)).balance;
         if (usdcBalance == 0){
-          console.log("nothing to transfer");
+          console.log(`nothing to transfer for ${strategy.contractAddress}`);
           continue; 
         }
         await sleep(1000); // Sleep for 3 sec before processing the next strategy
@@ -117,7 +119,7 @@ async function checkTreasury(contractAddress = null) {
       } catch (error) {
         console.error("Error retrieving USDC balance:", error);
       }
-    }
+    // }
     await sleep(1000); // Sleep for 3 sec before processing the next strategy
   }
   console.log("transfers processed");

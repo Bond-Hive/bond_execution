@@ -105,10 +105,10 @@ async function retrieveAccountAndFilterBalance(accountId, assetCode="USDC") {
     if (response.data && response.data.balances) {
       const balanceEntry = response.data.balances.find(balance => balance.asset_code === assetCode);
       if (balanceEntry) {
-        console.log({
-          balance: balanceEntry.balance,
-          asset_code: balanceEntry.asset_code
-        })
+        // console.log({
+        //   balance: balanceEntry.balance,
+        //   asset_code: balanceEntry.asset_code
+        // })
         return {
           balance: balanceEntry.balance,
           asset_code: balanceEntry.asset_code
@@ -145,10 +145,10 @@ async function retrieveAccountAndFilterBalanceFromSecret(secretKey, assetCode="U
     if (response.data && response.data.balances) {
       const balanceEntry = response.data.balances.find(balance => balance.asset_code === assetCode);
       if (balanceEntry) {
-        console.log({
-          balance: balanceEntry.balance,
-          asset_code: balanceEntry.asset_code
-        })
+        // console.log({
+        //   balance: balanceEntry.balance,
+        //   asset_code: balanceEntry.asset_code
+        // })
         return {
           balance: balanceEntry.balance,
           asset_code: balanceEntry.asset_code
